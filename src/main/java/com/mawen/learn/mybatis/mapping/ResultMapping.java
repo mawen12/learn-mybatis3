@@ -3,6 +3,7 @@ package com.mawen.learn.mybatis.mapping;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.mawen.learn.mybatis.session.Configuration;
@@ -33,6 +34,112 @@ public class ResultMapping {
 	private boolean lazy;
 
 	ResultMapping() {}
+
+
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public String getColumn() {
+		return column;
+	}
+
+	public Class<?> getJavaType() {
+		return javaType;
+	}
+
+	public Class<?> getJdbcType() {
+		return jdbcType;
+	}
+
+	public TypeHandler<?> getTypeHandler() {
+		return typeHandler;
+	}
+
+	public String getNestedResultMapId() {
+		return nestedResultMapId;
+	}
+
+	public String getNestedQueryId() {
+		return nestedQueryId;
+	}
+
+	public Set<String> getNotNulColumns() {
+		return notNulColumns;
+	}
+
+	public String getColumnPrefix() {
+		return columnPrefix;
+	}
+
+	public List<ResultFlag> getFlags() {
+		return flags;
+	}
+
+	public List<ResultMapping> getComposites() {
+		return composites;
+	}
+
+	public String getResultSet() {
+		return resultSet;
+	}
+
+	public String getForeignColumn() {
+		return foreignColumn;
+	}
+
+	public boolean isLazy() {
+		return lazy;
+	}
+
+	public boolean isSimple() {
+		return this.nestedResultMapId == null && this.nestedQueryId == null && this.resultSet == null;
+	}
+
+	@Override
+	public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ResultMapping)) return false;
+
+		ResultMapping that = (ResultMapping) o;
+		return Objects.equals(property, that.property);
+	}
+
+	@Override
+	public int hashCode() {
+		if (property != null) {
+			return property.hashCode();
+		}
+		else if (column != null) {
+			return column.hashCode();
+		}
+		else {
+			return 0;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "ResultMapping{" +
+		       ", property='" + property + '\'' +
+		       ", column='" + column + '\'' +
+		       ", javaType=" + javaType +
+		       ", jdbcType=" + jdbcType +
+		       ", nestedResultMapId='" + nestedResultMapId + '\'' +
+		       ", nestedQueryId='" + nestedQueryId + '\'' +
+		       ", notNulColumns=" + notNulColumns +
+		       ", columnPrefix='" + columnPrefix + '\'' +
+		       ", flags=" + flags +
+		       ", composites=" + composites +
+		       ", resultSet='" + resultSet + '\'' +
+		       ", foreignColumn='" + foreignColumn + '\'' +
+		       ", lazy=" + lazy +
+		       '}';
+	}
 
 	public static class Builder {
 
@@ -118,6 +225,11 @@ public class ResultMapping {
 			return this;
 		}
 
+		public Builder column(String column) {
+			resultMapping.column = column;
+			return this;
+		}
+
 		public ResultMapping build() {
 			resultMapping.flags = Collections.unmodifiableList(resultMapping.flags);
 			resultMapping.composites = Collections.unmodifiableList(resultMapping.composites);
@@ -138,7 +250,31 @@ public class ResultMapping {
 			if (resultMapping.nestedQueryId != null && resultMapping.nestedResultMapId != null) {
 				throw new IllegalStateException("Cannot define");
 			}
-		}
 
+			if (resultMapping.nestedQueryId == null && resultMapping.nestedResultMapId == null && resultMapping.typeHandler == null) {
+				throw new IllegalStateException("No typehanlder found for property " + resultMapping.property);
+			}
+
+			if (resultMapping.nestedResultMapId == null && resultMapping.column == null && resultMapping.composites.isEmpty()) {
+				throw new IllegalStateException("Mapping is missing column attribute for property " + resultMapping.property);
+			}
+
+			if (resultMapping.getResultSet() != null) {
+				int numColumns = 0;
+				if (resultMapping.column != null) {
+					numColumns = resultMapping.column.split(",").length;
+				}
+				int numForeignColumns = 0;
+				if (resultMapping.foreignColumn != null) {
+					numForeignColumns = resultMapping.foreignColumn.split(",").length;
+				}
+				if (numColumns != numForeignColumns) {
+					throw new IllegalStateException("There should be the same number of columns and foreignColumns in property " + resultMapping.property);
+				}
+			}
+		}
 	}
+
+
+
 }
