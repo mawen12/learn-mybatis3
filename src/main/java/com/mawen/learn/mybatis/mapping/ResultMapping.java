@@ -84,6 +84,10 @@ public class ResultMapping {
 		return composites;
 	}
 
+	public boolean isCompositeResult() {
+		return this.composites != null && !this.composites.isEmpty();
+	}
+
 	public String getResultSet() {
 		return resultSet;
 	}

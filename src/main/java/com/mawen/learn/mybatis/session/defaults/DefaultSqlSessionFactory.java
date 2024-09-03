@@ -1,13 +1,18 @@
 package com.mawen.learn.mybatis.session.defaults;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.concurrent.Executor;
 
+import com.mawen.learn.mybatis.mapping.Environment;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.session.ExecutorType;
 import com.mawen.learn.mybatis.session.SqlSession;
 import com.mawen.learn.mybatis.session.SqlSessionFactory;
 import com.mawen.learn.mybatis.session.TransactionIsolationLevel;
 import com.mawen.learn.mybatis.transaction.Transaction;
+import com.mawen.learn.mybatis.transaction.TransactionFactory;
+import com.mawen.learn.mybatis.transaction.managed.ManagedTransactionFactory;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -69,7 +74,44 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 	private SqlSession openSqlSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
 		Transaction tx = null;
 		try {
-			configuration.getEnvironment();
+			final Environment environment = configuration.getEnvironment();
+
+		}
+	}
+
+	private SqlSession openSessionFromConnection(ExecutorType execType, Connection connection) {
+		try {
+			boolean autoCommit;
+			try {
+				autoCommit = connection.getAutoCommit();
+			}
+			catch (SQLException e) {
+				autoCommit = true;
+			}
+
+			final Environment environment = configuration.getEnvironment();
+			TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+			Transaction tx = transactionFactory.newTransaction(connection);
+			Executor executor = configuration.newExecutor(tx, execType);
+
+		}
+	}
+
+	private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
+		if (environment == null || environment.getTransactionFactory() == null) {
+			return new ManagedTransactionFactory();
+		}
+		return environment.getTransactionFactory();
+	}
+
+	private void closeTransaction(Transaction tx) {
+		if (tx != null) {
+			try {
+				tx.close();
+			}
+			catch (SQLException ignored) {
+
+			}
 		}
 	}
 }

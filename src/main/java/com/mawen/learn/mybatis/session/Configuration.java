@@ -2,12 +2,15 @@ package com.mawen.learn.mybatis.session;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import com.mawen.learn.mybatis.io.VFS;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.mapping.Environment;
 import com.mawen.learn.mybatis.mapping.ResultSetType;
+import com.mawen.learn.mybatis.reflection.DefaultReflectorFactory;
+import com.mawen.learn.mybatis.reflection.ReflectorFactory;
 import com.mawen.learn.mybatis.type.JdbcType;
 
 /**
@@ -46,5 +49,8 @@ public class Configuration {
 	protected ResultSetType defaultResultSetType;
 	protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 	protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
-	protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior =
+	protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
+
+	protected Properties properties = new Properties();
+	protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
 }

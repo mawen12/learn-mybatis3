@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import com.mawen.learn.mybatis.annotations.Param;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
+import com.mawen.learn.mybatis.reflection.ParamNameUtil;
 import com.mawen.learn.mybatis.session.Configuration;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -35,7 +36,8 @@ public class ResultMap {
 	private boolean hasNestedQueries;
 	private Boolean autoMapping;
 
-	private ResultMap() {}
+	private ResultMap() {
+	}
 
 	public Configuration getConfiguration() {
 		return configuration;
@@ -174,7 +176,7 @@ public class ResultMap {
 
 				if (actualArgNames == null) {
 					throw new BuilderException("Error in result map '" + resultMap.id + "'. Failed to find a constructor in '" + resultMap.getType().getName()
-					                           + "' by arg names " + constructorArgNames + ". There might be more info in debug log.");
+							+ "' by arg names " + constructorArgNames + ". There might be more info in debug log.");
 				}
 
 				resultMap.constructorResultMappings.sort((o1, o2) -> {
@@ -193,15 +195,66 @@ public class ResultMap {
 			return resultMap;
 		}
 
+		private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
+			Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
+			for (Constructor<?> constructor : constructors) {
+				Class<?>[] paramTypes = constructor.getParameterTypes();
+				if (constructorArgNames.size() == paramTypes.length) {
+					List<String> paramNames = getArgNames(constructor);
+					if (constructorArgNames.containsAll(paramNames) && argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
+						return paramNames;
+					}
+				}
+			}
+			return null;
+		}
+
+		private boolean argTypesMatch(final List<String> constructorArgNames, Class<?>[] paramTypes, List<String> paramNames) {
+			for (int i = 0; i < constructorArgNames.size(); i++) {
+				Class<?> actualType = paramTypes[paramNames.indexOf(constructorArgNames.get(i))];
+				Class<?> specifiedType = resultMap.constructorResultMappings.get(i).getJavaType();
+				if (!actualType.equals(specifiedType)) {
+					if (log.isDebugEnabled()) {
+						log.debug("While building result map '" + resultMap.id
+								+ "', found a constructor with arg names " + constructorArgNames
+								+ ", but the type of '" + constructorArgNames.get(i)
+								+ "' did not match. Specified: [" + specifiedType.getName() + "] Declared: ["
+								+ actualType.getName() + "]");
+					}
+					return false;
+				}
+			}
+			return true;
+		}
+
 		private List<String> getArgNames(Constructor<?> constructor) {
 			List<String> paramNames = new ArrayList<>();
 			List<String> actualParamNames = null;
-			final Annotation[][] paramAnnotation = constructor.getParameterAnnotations();
-			int paramCount = paramAnnotation.length;
+			final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+			int paramCount = paramAnnotations.length;
 
-			for (int i = 0; i < paramCount; i++) {
-				
+			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+				String name = null;
+				for (Annotation annotation : paramAnnotations[paramIndex]) {
+					if (annotation instanceof Param) {
+						name = ((Param) annotation).value();
+						break;
+					}
+				}
+
+				if (name == null && resultMap.configuration.isUseActualParamName()) {
+					if (actualParamNames == null) {
+						actualParamNames = ParamNameUtil.getParamNames(constructor);
+					}
+					if (actualParamNames.size() > paramIndex) {
+						name = actualParamNames.get(paramIndex);
+					}
+				}
+
+				paramNames.add(name != null ? name : "arg" + paramIndex);
 			}
+
+			return paramNames;
 		}
 	}
 }
