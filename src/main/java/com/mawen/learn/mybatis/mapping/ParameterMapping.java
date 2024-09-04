@@ -28,6 +28,63 @@ public class ParameterMapping {
 	private ParameterMapping() {
 	}
 
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public ParameterMode getMode() {
+		return mode;
+	}
+
+	public Class<?> getJavaType() {
+		return javaType;
+	}
+
+	public JdbcType getJdbcType() {
+		return jdbcType;
+	}
+
+	public Integer getNumericScale() {
+		return numericScale;
+	}
+
+	public TypeHandler<?> getTypeHandler() {
+		return typeHandler;
+	}
+
+	public String getResultMapId() {
+		return resultMapId;
+	}
+
+	public String getJdbcTypeName() {
+		return jdbcTypeName;
+	}
+
+	public String getExpression() {
+		return expression;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("ParameterMapping{");
+		//sb.append("configuration=").append(configuration); // configuration doesn't have a useful .toString()
+		sb.append("property='").append(property).append('\'');
+		sb.append(", mode=").append(mode);
+		sb.append(", javaType=").append(javaType);
+		sb.append(", jdbcType=").append(jdbcType);
+		sb.append(", numericScale=").append(numericScale);
+		//sb.append(", typeHandler=").append(typeHandler); // typeHandler also doesn't have a useful .toString()
+		sb.append(", resultMapId='").append(resultMapId).append('\'');
+		sb.append(", jdbcTypeName='").append(jdbcTypeName).append('\'');
+		sb.append(", expression='").append(expression).append('\'');
+		sb.append('}');
+		return sb.toString();
+	}
+
 	public static class Builder {
 		private ParameterMapping parameterMapping = new ParameterMapping();
 
@@ -111,7 +168,7 @@ public class ParameterMapping {
 			if (parameterMapping.typeHandler == null && parameterMapping.javaType != null) {
 				Configuration configuration = parameterMapping.configuration;
 				TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-
+				parameterMapping.typeHandler = typeHandlerRegistry.getTypeHandler(parameterMapping.javaType, parameterMapping.jdbcType);
 			}
 		}
 	}

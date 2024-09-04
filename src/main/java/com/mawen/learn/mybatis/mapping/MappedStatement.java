@@ -1,5 +1,10 @@
 package com.mawen.learn.mybatis.mapping;
 
+import java.util.List;
+
+import com.mawen.learn.mybatis.executor.keygen.KeyGenerator;
+import com.mawen.learn.mybatis.logging.Log;
+import com.mawen.learn.mybatis.scripting.LanguageDriver;
 import com.mawen.learn.mybatis.session.Configuration;
 import sun.security.util.Cache;
 
@@ -19,6 +24,16 @@ public final class MappedStatement {
 	private SqlSource sqlSource;
 	private Cache cache;
 	private ParameterMap parameterMap;
-	private List<ResultMap>
-
+	private List<ResultMap> resultMaps;
+	private boolean flushCacheRequired;
+	private boolean resultOrdered;
+	private SqlCommandType sqlCommandType;
+	private KeyGenerator keyGenerator;
+	private String[] keyProperties;
+	private String[] keyColumns;
+	private boolean hasNestedResultMaps;
+	private String databaseId;
+	private Log statementLog;
+	private LanguageDriver lang;
+	private String[] resultSets;
 }

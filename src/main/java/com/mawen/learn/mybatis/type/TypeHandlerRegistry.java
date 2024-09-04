@@ -15,7 +15,10 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZonedDateTime;
+import java.time.chrono.JapaneseDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -144,6 +147,12 @@ public final class TypeHandlerRegistry {
 		register(OffsetTime.class, new OffsetTimeTypeHandler());
 		register(ZonedDateTime.class, new ZonedDataTimeTypeHandler());
 		register(Month.class, new MonthTypeHandler());
+		register(Year.class, new YearTypeHandler());
+		register(YearMonth.class, new YearMonthTypeHandler());
+		register(JapaneseDate.class, new JapaneseDateTypeHandler());
+
+		register(Character.class, new CharacterTypeHandler());
+		register(char.class, new CharacterTypeHandler());
 	}
 
 	public void setDefaultEnumTypeHandler(Class<? extends TypeHandler> typeHandler) {
