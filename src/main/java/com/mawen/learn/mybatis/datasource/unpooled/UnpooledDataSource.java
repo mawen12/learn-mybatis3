@@ -169,7 +169,7 @@ public class UnpooledDataSource implements DataSource {
 		this.password = password;
 	}
 
-	public Boolean getAutoCommit() {
+	public Boolean isAutoCommit() {
 		return autoCommit;
 	}
 
