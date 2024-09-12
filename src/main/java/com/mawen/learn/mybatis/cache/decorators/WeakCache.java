@@ -1,7 +1,7 @@
 package com.mawen.learn.mybatis.cache.decorators;
 
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -9,17 +9,16 @@ import com.mawen.learn.mybatis.cache.Cache;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
- * @since 2024/9/4
+ * @since 2024/9/12
  */
-public class SoftCache implements Cache {
+public class WeakCache implements Cache {
 
 	private final Deque<Object> hardLinksToAvoidGarbageCollection;
 	private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
 	private final Cache delegate;
 	private int numberOfHardLinks;
 
-
-	public SoftCache(Cache delegate) {
+	public WeakCache(Cache delegate) {
 		this.delegate = delegate;
 		this.numberOfHardLinks = 256;
 		this.hardLinksToAvoidGarbageCollection = new LinkedList<>();
@@ -34,15 +33,15 @@ public class SoftCache implements Cache {
 	@Override
 	public void putObject(Object key, Object value) {
 		removeGarbageCollectedItems();
-		delegate.putObject(key, new SoftEntry(key,value,queueOfGarbageCollectedEntries));
+		delegate.putObject(key, new WeakEntry(key,value, queueOfGarbageCollectedEntries));
 	}
 
 	@Override
 	public Object getObject(Object key) {
 		Object result = null;
-		SoftReference<Object> softReference = (SoftReference<Object>) delegate.getObject(key);
-		if (softReference != null) {
-			result = softReference.get();
+		WeakReference<Object> weakReference = (WeakReference<Object>) delegate.getObject(key);
+		if (weakReference != null) {
+			result = weakReference.get();
 			if (result == null) {
 				delegate.removeObject(key);
 			}
@@ -61,8 +60,8 @@ public class SoftCache implements Cache {
 	@Override
 	public Object removeObject(Object key) {
 		removeGarbageCollectedItems();
-		SoftReference<Object> softReference = (SoftReference<Object>) delegate.removeObject(key);
-		return softReference == null ? null : softReference.get();
+		WeakReference<Object> weakReference  = (WeakReference<Object>) delegate.removeObject(key);
+		return weakReference == null ? null : weakReference.get();
 	}
 
 	@Override
@@ -70,28 +69,28 @@ public class SoftCache implements Cache {
 		synchronized (hardLinksToAvoidGarbageCollection) {
 			hardLinksToAvoidGarbageCollection.clear();
 		}
+
 		removeGarbageCollectedItems();
 		delegate.clear();
 	}
 
 	@Override
 	public int getSize() {
-		removeGarbageCollectedItems();
-		return delegate.getSize();
+		return 0;
 	}
 
 	private void removeGarbageCollectedItems() {
-		SoftEntry sv;
-		while ((sv = (SoftEntry) queueOfGarbageCollectedEntries.poll()) != null) {
+		WeakEntry sv;
+		while ((sv = (WeakEntry) queueOfGarbageCollectedEntries.poll()) != null) {
 			delegate.removeObject(sv.key);
 		}
 	}
 
-	private static class SoftEntry extends SoftReference<Object> {
+	private static class WeakEntry extends WeakReference<Object> {
 
 		private final Object key;
 
-		public SoftEntry(Object key, Object value, ReferenceQueue<Object> garbageCollectionQueue) {
+		public WeakEntry(Object key, Object value, ReferenceQueue<Object> garbageCollectionQueue) {
 			super(value, garbageCollectionQueue);
 			this.key = key;
 		}
