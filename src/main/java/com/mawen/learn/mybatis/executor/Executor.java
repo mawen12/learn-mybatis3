@@ -3,6 +3,8 @@ package com.mawen.learn.mybatis.executor;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.mawen.learn.mybatis.cache.CacheKey;
+import com.mawen.learn.mybatis.cursor.Cursor;
 import com.mawen.learn.mybatis.mapping.BoundSql;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
 import com.mawen.learn.mybatis.reflection.MetaObject;

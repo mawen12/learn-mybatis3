@@ -9,7 +9,6 @@ import java.util.Set;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -25,7 +24,7 @@ public class ResultMapping {
 	private TypeHandler<?> typeHandler;
 	private String nestedResultMapId;
 	private String nestedQueryId;
-	private Set<String> notNulColumns;
+	private Set<String> notNullColumns;
 	private String columnPrefix;
 	private List<ResultFlag> flags;
 	private List<ResultMapping> composites;
@@ -68,8 +67,8 @@ public class ResultMapping {
 		return nestedQueryId;
 	}
 
-	public Set<String> getNotNulColumns() {
-		return notNulColumns;
+	public Set<String> getNotNullColumns() {
+		return notNullColumns;
 	}
 
 	public String getColumnPrefix() {
@@ -135,7 +134,7 @@ public class ResultMapping {
 		       ", jdbcType=" + jdbcType +
 		       ", nestedResultMapId='" + nestedResultMapId + '\'' +
 		       ", nestedQueryId='" + nestedQueryId + '\'' +
-		       ", notNulColumns=" + notNulColumns +
+		       ", notNulColumns=" + notNullColumns +
 		       ", columnPrefix='" + columnPrefix + '\'' +
 		       ", flags=" + flags +
 		       ", composites=" + composites +
@@ -200,7 +199,7 @@ public class ResultMapping {
 		}
 
 		public Builder notNulColumns(Set<String> notNulColumns) {
-			resultMapping.notNulColumns = notNulColumns;
+			resultMapping.notNullColumns = notNulColumns;
 			return this;
 		}
 

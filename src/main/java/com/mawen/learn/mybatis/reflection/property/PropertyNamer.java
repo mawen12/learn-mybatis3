@@ -28,6 +28,10 @@ public class PropertyNamer {
 		return name;
 	}
 
+	public static boolean isProperty(String name) {
+		return isGetter(name) || isSetter(name);
+	}
+
 	public static boolean isGetter(String name) {
 		return (name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2);
 	}

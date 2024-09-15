@@ -11,6 +11,8 @@ import com.mawen.learn.mybatis.mapping.MappedStatement;
  */
 public class NoKeyGenerator implements KeyGenerator {
 
+	public static final NoKeyGenerator INSTANCE = new NoKeyGenerator();
+
 	@Override
 	public void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
 		// Do nothing

@@ -11,7 +11,12 @@ import com.mawen.learn.mybatis.mapping.Environment;
 import com.mawen.learn.mybatis.mapping.ResultSetType;
 import com.mawen.learn.mybatis.reflection.DefaultReflectorFactory;
 import com.mawen.learn.mybatis.reflection.ReflectorFactory;
+import com.mawen.learn.mybatis.reflection.factory.DefaultObjectFactory;
+import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
+import com.mawen.learn.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
+import com.mawen.learn.mybatis.reflection.wrapper.ObjectWrapperFactory;
 import com.mawen.learn.mybatis.type.JdbcType;
+import javassist.util.proxy.ProxyFactory;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -53,4 +58,9 @@ public class Configuration {
 
 	protected Properties properties = new Properties();
 	protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+	protected ObjectFactory objectFactory = new DefaultObjectFactory();
+	protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
+
+	protected boolean lazyLoadingEnabled = false;
+	protected ProxyFactory proxyFactory = new JavassistProxyFactory();
 }

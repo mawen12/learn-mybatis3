@@ -117,7 +117,7 @@ public class CacheKey implements Cloneable, Serializable {
 	}
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	public CacheKey clone() throws CloneNotSupportedException {
 		CacheKey cloneCacheKey = (CacheKey) super.clone();
 		cloneCacheKey.updateList = new ArrayList<>(this.updateList);
 		return cloneCacheKey;

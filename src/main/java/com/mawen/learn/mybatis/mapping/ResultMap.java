@@ -79,11 +79,11 @@ public class ResultMap {
 		return discriminator;
 	}
 
-	public boolean isHasNestedResultMaps() {
+	public boolean hasNestedResultMaps() {
 		return hasNestedResultMaps;
 	}
 
-	public boolean isHasNestedQueries() {
+	public boolean hasNestedQueries() {
 		return hasNestedQueries;
 	}
 
