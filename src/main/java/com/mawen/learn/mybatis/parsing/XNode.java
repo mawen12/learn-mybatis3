@@ -190,11 +190,11 @@ public class XNode {
 		return value == null ? def : Boolean.valueOf(value);
 	}
 
-	public Integer getIntegerAttribute(String name) {
-		return getIntegerAttribute(name, null);
+	public Integer getIntAttribute(String name) {
+		return getIntAttribute(name, null);
 	}
 
-	public Integer getIntegerAttribute(String name, Integer def) {
+	public Integer getIntAttribute(String name, Integer def) {
 		String value = attributes.getProperty(name);
 		return value == null ? def : Integer.valueOf(value);
 	}

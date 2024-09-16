@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mawen.learn.mybatis.binding.MapperMethod;
 import com.mawen.learn.mybatis.executor.Executor;
 import com.mawen.learn.mybatis.executor.ExecutorException;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
@@ -20,6 +21,7 @@ import com.mawen.learn.mybatis.reflection.ArrayUtil;
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.ParamNameResolver;
 import com.mawen.learn.mybatis.session.Configuration;
+import com.mawen.learn.mybatis.session.defaults.DefaultSqlSession;
 import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
@@ -71,11 +73,11 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 	}
 
 	private void assignKeys(Configuration configuration, ResultSet rs, ResultSetMetaData rsmd, String[] keyProperties, Object parameter) throws SQLException {
-		if (parameter instanceof ParamMap || parameter instanceof StrictMap) {
+		if (parameter instanceof MapperMethod.ParamMap || parameter instanceof DefaultSqlSession.StrictMap) {
 			assignKeyToParamMap(configuration, rs, rsmd, keyProperties, (Map<String, ?>) parameter);
 		}
 		else if (parameter instanceof ArrayList && !(ArrayList<?>)parameter.isEmpty()) {
-			assignKeysToParamMapList(configuration, rs, rsmd, keyProperties, (ArrayList<ParamMap<?>>) parameter);
+			assignKeysToParamMapList(configuration, rs, rsmd, keyProperties, (ArrayList<MapperMethod.ParamMap<?>>) parameter);
 		}
 		else {
 			assignKeysToParam(configuration, rs, rsmd, keyProperties, parameter);

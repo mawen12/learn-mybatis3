@@ -32,8 +32,6 @@ import com.mawen.learn.mybatis.session.ExecutorType;
 import com.mawen.learn.mybatis.session.LocalCacheScope;
 import com.mawen.learn.mybatis.transaction.TransactionFactory;
 import com.mawen.learn.mybatis.type.JdbcType;
-import jdk.javadoc.internal.doclets.toolkit.builders.BuilderFactory;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -360,9 +358,45 @@ public class XMLConfigBuilder extends BaseBuilder {
 							mapperParser.parse();
 						}
 					}
+					else if (resource == null && url != null && mapperClass == null) {
+						ErrorContext.instance().resource(url);
+						try (InputStream inputStream = Resources.getUrlAsStream(url)) {
+							XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
+							mapperParser.parse();
+						}
+					}
+					else if (resource == null && url == null && mapperClass != null) {
+						Class<?> mapperInterface = Resources.classForName(mapperClass);
+						configuration.addMapper(mapperInterface);
+					}
+					else {
+						throw new BuilderException("A mapper element may only specify a url, resource or class, but not more that one.");
+					}
 				}
 			}
 		}
+	}
+
+	private TransactionFactory transactionManagerElement(XNode context) throws Exception {
+		if (context != null) {
+			String type = context.getStringAttribute("type");
+			Properties props = context.getChildrenAsProperties();
+			TransactionFactory factory = (TransactionFactory) resolveClass(type).getDeclaredConstructor().newInstance();
+			factory.setProperties(props);
+			return factory;
+		}
+		throw new BuilderException("Environment declaration requires a TransactionFactory.");
+	}
+
+	private DataSourceFactory dataSourceElement(XNode context) throws Exception {
+		if (context != null) {
+			String type = context.getStringAttribute("type");
+			Properties props = context.getChildrenAsProperties();
+			DataSourceFactory factory = (DataSourceFactory) resolveClass(type).getDeclaredConstructor().newInstance();
+			factory.setProperties(props);
+			return factory;
+		}
+		throw new BuilderException("Environment declaration requires a DataSourceFactory.");
 	}
 
 	private boolean isSpecifiedEnvironment(String id) {

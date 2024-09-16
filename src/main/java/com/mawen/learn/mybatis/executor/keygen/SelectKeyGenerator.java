@@ -22,7 +22,7 @@ public class SelectKeyGenerator implements KeyGenerator {
 	private final boolean executeBefore;
 	private final MappedStatement keyStatement;
 
-	public SelectKeyGenerator(boolean executeBefore, MappedStatement keyStatement) {
+	public SelectKeyGenerator(MappedStatement keyStatement, boolean executeBefore) {
 		this.executeBefore = executeBefore;
 		this.keyStatement = keyStatement;
 	}

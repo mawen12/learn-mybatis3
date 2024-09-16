@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.mawen.learn.mybatis.session.Configuration;
+import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
 
@@ -20,7 +21,7 @@ public class ResultMapping {
 	private String property;
 	private String column;
 	private Class<?> javaType;
-	private Class<?> jdbcType;
+	private JdbcType jdbcType;
 	private TypeHandler<?> typeHandler;
 	private String nestedResultMapId;
 	private String nestedQueryId;
@@ -51,7 +52,7 @@ public class ResultMapping {
 		return javaType;
 	}
 
-	public Class<?> getJdbcType() {
+	public JdbcType getJdbcType() {
 		return jdbcType;
 	}
 
@@ -173,7 +174,7 @@ public class ResultMapping {
 			return this;
 		}
 
-		public Builder jdbcType(Class<?> jdbcType) {
+		public Builder jdbcType(JdbcType jdbcType) {
 			resultMapping.jdbcType = jdbcType;
 			return this;
 		}

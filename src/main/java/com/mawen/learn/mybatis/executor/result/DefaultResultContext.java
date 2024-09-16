@@ -33,6 +33,11 @@ public class DefaultResultContext<T> implements ResultContext<T> {
 		return stopped;
 	}
 
+	public void nextResultObject(T resultObject) {
+		resultCount++;
+		this.resultObject = resultObject;
+	}
+
 	@Override
 	public void stop() {
 		this.stopped = true;

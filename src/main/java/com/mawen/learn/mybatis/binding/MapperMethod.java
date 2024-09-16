@@ -1,13 +1,18 @@
 package com.mawen.learn.mybatis.binding;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.mawen.learn.mybatis.annotations.Flush;
 import com.mawen.learn.mybatis.annotations.MapKey;
+import com.mawen.learn.mybatis.builder.BuilderException;
 import com.mawen.learn.mybatis.cursor.Cursor;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
 import com.mawen.learn.mybatis.mapping.SqlCommandType;
@@ -16,6 +21,7 @@ import com.mawen.learn.mybatis.reflection.TypeParameterResolver;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.session.ResultHandler;
 import com.mawen.learn.mybatis.session.RowBounds;
+import com.mawen.learn.mybatis.session.SqlSession;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -24,8 +30,49 @@ import com.mawen.learn.mybatis.session.RowBounds;
 public class MapperMethod {
 
 	private final SqlCommand command;
-	private final MethodSignature signature;
+	private final MethodSignature method;
 
+
+
+	private <E> Object convertToArray(List<E> list) {
+		Class<?> arrayComponentType = method.getReturnType().getComponentType();
+		Object array = Array.newInstance(arrayComponentType, list.size());
+		if (arrayComponentType.isPrimitive()) {
+			for (int i = 0; i < list.size(); i++) {
+				Array.set(array,i,list.get(i));
+			}
+			return array;
+		}
+		else {
+			return list.toArray((E[]) array);
+		}
+	}
+
+	private <K, V> Map<K, V> executeForMap(SqlSession sqlSession, Object[] args) {
+		Map<K, V> result;
+		Object param = method.convertArgsToSqlCommandParam(args);
+		if (method.hasRowBounds()) {
+			RowBounds rowBounds = method.extractRowBounds(args);
+			result = sqlSession.selectMap(command.getName(), param, method.getMapKey(), rowBounds);
+		}
+		else {
+			result = sqlSession.selectMap(command.getName(), param, method.getMapKey());
+		}
+		return result;
+	}
+
+	public static class ParamMap<V> extends HashMap<String, V> {
+
+		private static final long serialVersionUID = 2027656203126050276L;
+
+		@Override
+		public V get(Object key) {
+			if (!super.containsKey(key)) {
+				throw new BuilderException("Parameter '" + key + "' not found. Available parameters are " + keySet());
+			}
+			return super.get(key);
+		}
+	}
 
 	public static class SqlCommand {
 
