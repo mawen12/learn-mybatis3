@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,8 @@ import com.mawen.learn.mybatis.builder.BuilderException;
 import com.mawen.learn.mybatis.cursor.Cursor;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
 import com.mawen.learn.mybatis.mapping.SqlCommandType;
+import com.mawen.learn.mybatis.mapping.StatementType;
+import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.ParamNameResolver;
 import com.mawen.learn.mybatis.reflection.TypeParameterResolver;
 import com.mawen.learn.mybatis.session.Configuration;
@@ -32,14 +33,138 @@ public class MapperMethod {
 	private final SqlCommand command;
 	private final MethodSignature method;
 
+	public MapperMethod(Class<?> mapperInterface, Method method, Configuration configuration) {
+		this.command = new SqlCommand(configuration, mapperInterface, method);
+		this.method = new MethodSignature(configuration, mapperInterface, method);
+	}
 
+	public Object execute(SqlSession sqlSession, Object[] args) {
+		Object result;
+		switch (command.getType()) {
+			case INSERT: {
+				Object param = method.convertArgsToSqlCommandParam(args);
+				result = rowCountResult(sqlSession.insert(command.getName(), param));
+				break;
+			}
+			case UPDATE: {
+				Object param = method.convertArgsToSqlCommandParam(args);
+				result = rowCountResult(sqlSession.update(command.getName(), param));
+				break;
+			}
+			case DELETE: {
+				Object param = method.convertArgsToSqlCommandParam(args);
+				result = rowCountResult(sqlSession.delete(command.getName(), param));
+				break;
+			}
+			case SELECT: {
+				if (method.returnsVoid && method.hasResultHandler()) {
+					executeWithResultHandler(sqlSession, args);
+					result = null;
+				}
+				else if (method.returnsMany()) {
+					result = executeForMany(sqlSession, args);
+				}
+				else if (method.returnsCursor()) {
+					result = executeForCursor(sqlSession, args);
+				}
+				else {
+					Object param = method.convertArgsToSqlCommandParam(args);
+					result = sqlSession.selectOne(command.getName(), param);
+					if (method.returnsOptional() && (result == null || !method.getReturnType().equals(result.getClass()))) {
+						result = Optional.ofNullable(result);
+					}
+				}
+				break;
+			}
+			case FLUSH:
+				result = sqlSession.flushStatements();
+				break;
+			default:
+				throw new BindingException("Unknown execution method for: " + command.getName());
+		}
+
+		if (result == null && method.getReturnType().isPrimitive() && !method.returnsVoid()) {
+			throw new BindingException("Mapper method '" + command.getName() + " attempted to return null from a method with a primitive return type (" + method.getReturnType() + ").");
+		}
+		return result;
+	}
+
+	private Object rowCountResult(int rowCount) {
+		final Object result;
+		if (method.returnsVoid) {
+			result = null;
+		}
+		else if (Integer.class.equals(method.getReturnType()) || Integer.TYPE.equals(method.getReturnType())) {
+			result = rowCount;
+		}
+		else if (Long.class.equals(method.getReturnType()) || Long.TYPE.equals(method.getReturnType())) {
+			result = (long) rowCount;
+		}
+		else if (Boolean.class.equals(method.getReturnType()) || Boolean.TYPE.equals(method.getReturnType())) {
+			result = rowCount > 0;
+		}
+		else {
+			throw new BindingException("Mapper method '" + command.getName() + "' has an unsupported return type: " + method.getReturnType());
+		}
+		return result;
+	}
+
+	private void executeWithResultHandler(SqlSession sqlSession, Object[] args) {
+		MappedStatement ms = sqlSession.getConfiguration().getMappedStatement(command.getName());
+		if (!StatementType.CALLABLE.equals(ms.getStatementType()) && void.class.equals(ms.getResultMaps().get(0).getType())) {
+			throw new BindingException("method " + command.getName() + " needs either a @ResultMap annotation, a @ResultType annotation,"
+			                           + " or a resultType attribute in XML so a ResultHandler can be used as a parameter.");
+		}
+
+		Object param = method.convertArgsToSqlCommandParam(args);
+		if (method.hasRowBounds()) {
+			RowBounds rowBounds = method.extractRowBounds(args);
+			sqlSession.select(command.getName(), param, rowBounds, method.extractResultHandler(args));
+		}
+		else {
+			sqlSession.select(command.getName(), param, method.extractResultHandler(args));
+		}
+	}
+
+	private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
+		List<E> result;
+		Object param = method.convertArgsToSqlCommandParam(args);
+		if (method.hasRowBounds()) {
+			RowBounds rowBounds = method.extractRowBounds(args);
+			result = sqlSession.selectList(command.getName(), param, rowBounds);
+		}
+		else {
+			result = sqlSession.selectList(command.getName(), param);
+		}
+		return result;
+	}
+
+	private <T> Cursor<T> executeForCursor(SqlSession sqlSession, Object[] args) {
+		Cursor<T> result;
+		Object param = method.convertArgsToSqlCommandParam(args);
+		if (method.hasRowBounds()) {
+			RowBounds rowBounds = method.extractRowBounds(args);
+			result = sqlSession.selectCursor(command.getName(), param, rowBounds);
+		}
+		else {
+			result = sqlSession.selectCursor(command.getName(), param);
+		}
+		return result;
+	}
+
+	private <E> Object convertToDeclaredCollection(Configuration configuration, List<E> list) {
+		Object collection = configuration.getObjectFactory().create(method.getReturnType());
+		MetaObject metaObject = configuration.newMetaObject(collection);
+		metaObject.addAll(list);
+		return collection;
+	}
 
 	private <E> Object convertToArray(List<E> list) {
 		Class<?> arrayComponentType = method.getReturnType().getComponentType();
 		Object array = Array.newInstance(arrayComponentType, list.size());
 		if (arrayComponentType.isPrimitive()) {
 			for (int i = 0; i < list.size(); i++) {
-				Array.set(array,i,list.get(i));
+				Array.set(array, i, list.get(i));
 			}
 			return array;
 		}
@@ -90,14 +215,14 @@ public class MapperMethod {
 					type = SqlCommandType.FLUSH;
 				}
 				else {
-					throw new BindException("Invalid bound statement (not found): " + mapperInterface.getName() + "." + methodName);
+					throw new BindingException("Invalid bound statement (not found): " + mapperInterface.getName() + "." + methodName);
 				}
 			}
 			else {
 				name = ms.getId();
 				type = ms.getSqlCommandType();
 				if (type == SqlCommandType.UNKNOWN) {
-					throw new BindException("Unknown execution method for: " + name);
+					throw new BindingException("Unknown execution method for: " + name);
 				}
 			}
 		}
@@ -220,7 +345,7 @@ public class MapperMethod {
 						index = i;
 					}
 					else {
-						throw new BindException(method.getName() + " cannot have multiple " + paramType.getSimpleName() + " parameters");
+						throw new BindingException(method.getName() + " cannot have multiple " + paramType.getSimpleName() + " parameters");
 					}
 				}
 			}

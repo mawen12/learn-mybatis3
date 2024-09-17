@@ -1,11 +1,10 @@
-package com.mawen.learn.mybatis.executor.loader.javassist;
+package com.mawen.learn.mybatis.executor.loader.cglib;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.mawen.learn.mybatis.executor.ExecutorException;
 import com.mawen.learn.mybatis.executor.loader.AbstractEnhancedDeserializationProxy;
 import com.mawen.learn.mybatis.executor.loader.AbstractSerialStateHolder;
 import com.mawen.learn.mybatis.executor.loader.ProxyFactory;
@@ -19,24 +18,26 @@ import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.reflection.property.PropertyCopier;
 import com.mawen.learn.mybatis.reflection.property.PropertyNamer;
 import com.mawen.learn.mybatis.session.Configuration;
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.Proxy;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
- * @since 2024/9/14
+ * @since 2024/9/17
  */
-public class JavassistProxyFactory implements ProxyFactory {
+public class CglibProxyFactory implements ProxyFactory {
 
 	private static final String FINALIZE_METHOD = "finalize";
 	private static final String WRITE_REPLACE_METHOD = "writeReplace";
 
-	public JavassistProxyFactory() {
+	public CglibProxyFactory() {
 		try {
-			Resources.classForName("javassist.util.proxy.ProxyFactory");
+			Resources.classForName("net.sf.cglib.proxy.Enhancer");
 		}
 		catch (Throwable e) {
-			throw new IllegalStateException("Cannot enable lazy loading because Javassist is not available. Add Javassist to your classpath.", e);
+			throw new IllegalStateException("Cannot enable lazy loading because CGLIB is not available. Add CGLIB to your classpath.", e);
 		}
 	}
 
@@ -49,14 +50,14 @@ public class JavassistProxyFactory implements ProxyFactory {
 		return EnhancedDeserializationProxyImpl.createProxy(target, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
 	}
 
-	static Object createProxy(Class<?> type, MethodHandler callback, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
-
-		javassist.util.proxy.ProxyFactory enhancer = new javassist.util.proxy.ProxyFactory();
+	static Object createProxy(Class<?> type, Callback callback, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+		LogHolder.log.warn("CglibProxyFactory is deprecated. Use another proxy factory implementation.");
+		Enhancer enhancer = new Enhancer();
+		enhancer.setCallback(callback);
 		enhancer.setSuperclass(type);
 
 		try {
 			type.getDeclaredMethod(WRITE_REPLACE_METHOD);
-
 			if (LogHolder.log.isDebugEnabled()) {
 				LogHolder.log.debug(WRITE_REPLACE_METHOD + " method was found on bean " + type + ", make sure it returns this");
 			}
@@ -64,24 +65,21 @@ public class JavassistProxyFactory implements ProxyFactory {
 		catch (NoSuchMethodException e) {
 			enhancer.setInterfaces(new Class[] {WriteReplaceInterface.class});
 		}
-		catch (SecurityException ignored) {
-		}
+		catch (SecurityException ignored) {}
 
 		Object enhanced;
-		Class[] typesArray = constructorArgTypes.toArray(new Class[constructorArgTypes.size()]);
-		Object[] valuesArray = constructorArgs.toArray(new Object[constructorArgs.size()]);
-		try {
+		if (constructorArgTypes.isEmpty()) {
+			enhanced = enhancer.create();
+		}
+		else {
+			Class[] typesArray = constructorArgTypes.toArray(new Class[constructorArgTypes.size()]);
+			Object[] valuesArray = constructorArgs.toArray(new Object[constructorArgs.size()]);
 			enhanced = enhancer.create(typesArray, valuesArray);
 		}
-		catch (Exception e) {
-			throw new ExecutorException("Error creating lazy proxy. Cause: " + e, e);
-		}
-
-		((Proxy)enhanced).setHandler(callback);
 		return enhanced;
 	}
 
-	private static class EnhancedResultObjectProxyImpl implements MethodHandler {
+	private static class EnhancedResultObjectProxyImpl implements MethodInterceptor {
 
 		private final Class<?> type;
 		private final ResultLoaderMap lazyLoader;
@@ -91,11 +89,11 @@ public class JavassistProxyFactory implements ProxyFactory {
 		private final List<Class<?>> constructorArgTypes;
 		private final List<Object> constructorArgs;
 
-		private EnhancedResultObjectProxyImpl(Class<?> type, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+		public EnhancedResultObjectProxyImpl(Class<?> type, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			this.type = type;
 			this.lazyLoader = lazyLoader;
 			this.aggressive = configuration.isAggressiveLazyLoading();
-			this.lazyLoadTriggerMethods = configuration.getLazyLoadTriggerMethods();
+			this.lazyLoadTriggerMethods = configuration.getLazyLoadingTriggerMethods();
 			this.objectFactory = objectFactory;
 			this.constructorArgTypes = constructorArgTypes;
 			this.constructorArgs = constructorArgs;
@@ -110,8 +108,8 @@ public class JavassistProxyFactory implements ProxyFactory {
 		}
 
 		@Override
-		public Object invoke(Object enhanced, Method method, Method methodProxy, Object[] args) throws Throwable {
-			String methodName = method.getName();
+		public Object intercept(Object enhanced, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+			final String methodName = method.getName();
 			try {
 				synchronized (lazyLoader) {
 					if (WRITE_REPLACE_METHOD.equals(methodName)) {
@@ -125,7 +123,7 @@ public class JavassistProxyFactory implements ProxyFactory {
 
 						PropertyCopier.copyBeanProperties(type, enhanced, original);
 						if (lazyLoader.size() > 0) {
-							return new JavassistSerialStateHolder(original, lazyLoader.getProperties(), objectFactory, constructorArgTypes, constructorArgs);
+							return new CglibSerialStateHolder(original, lazyLoader.getProperties(), objectFactory, constructorArgTypes, constructorArgs);
 						}
 						else {
 							return original;
@@ -149,7 +147,7 @@ public class JavassistProxyFactory implements ProxyFactory {
 						}
 					}
 				}
-				return methodProxy.invoke(enhanced, args);
+				return methodProxy.invokeSuper(enhanced, args);
 			}
 			catch (Throwable e) {
 				throw ExceptionUtil.unwrapThrowable(e);
@@ -157,34 +155,33 @@ public class JavassistProxyFactory implements ProxyFactory {
 		}
 	}
 
-	private static class EnhancedDeserializationProxyImpl extends AbstractEnhancedDeserializationProxy implements MethodHandler {
+	private static class EnhancedDeserializationProxyImpl extends AbstractEnhancedDeserializationProxy implements MethodInterceptor {
 
-		private EnhancedDeserializationProxyImpl(Class<?> type, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory,
-		                                         List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+		private EnhancedDeserializationProxyImpl(Class<?> type, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			super(type, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
 		}
 
-		public static Object createProxy(Object target, Map<String, ResultLoaderMap.LoadPair> unloadProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
-			final Class<?> type = target.getClass();
-			EnhancedDeserializationProxyImpl callback = new EnhancedDeserializationProxyImpl(type, unloadProperties, objectFactory, constructorArgTypes, constructorArgs);
-			Object enhanced = createProxy(type, callback, constructorArgTypes, constructorArgs);
+		public static Object createProxy(Object target, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+			Class<?> type = target.getClass();
+			EnhancedDeserializationProxyImpl callback = new EnhancedDeserializationProxyImpl(type, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
+			Object enhanced = createProxy(type, callback, objectFactory, constructorArgTypes, constructorArgs);
 			PropertyCopier.copyBeanProperties(type, target, enhanced);
 			return enhanced;
 		}
 
 		@Override
-		public Object invoke(Object enhanced, Method method, Method methodProxy, Object[] args) throws Throwable {
-			final Object o = super.invoke(enhanced, method, args);
-			return o instanceof AbstractSerialStateHolder ? o : methodProxy.invoke(o, args);
+		public Object intercept(Object enhanced, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+			Object o = super.invoke(enhanced, method, args);
+			return o instanceof AbstractSerialStateHolder ? o : methodProxy.invokeSuper(o, args);
 		}
 
 		@Override
 		protected AbstractSerialStateHolder newSerialStateHolder(Object userBean, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
-			return new JavassistSerialStateHolder(userBean, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
+			return new CglibSerialStateHolder(userBean, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
 		}
 	}
 
 	private static class LogHolder {
-		private static final Log log = LogFactory.getLog(JavassistProxyFactory.class);
+		private static final Log log = LogFactory.getLog(CglibProxyFactory.class);
 	}
 }

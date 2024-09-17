@@ -1,10 +1,13 @@
 package com.mawen.learn.mybatis.session;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import com.mawen.learn.mybatis.executor.loader.ProxyFactory;
+import com.mawen.learn.mybatis.executor.loader.javassist.JavassistProxyFactory;
 import com.mawen.learn.mybatis.io.VFS;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.mapping.Environment;
@@ -16,7 +19,6 @@ import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import com.mawen.learn.mybatis.reflection.wrapper.ObjectWrapperFactory;
 import com.mawen.learn.mybatis.type.JdbcType;
-import javassist.util.proxy.ProxyFactory;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -41,7 +43,6 @@ public class Configuration {
 	protected boolean nullableOnForEach;
 	protected boolean argNameBasedConstructorAutoMapping;
 
-
 	protected String logPrefix;
 	protected Class<? extends Log> logImpl;
 	protected Class<? extends VFS> vfsImpl;
@@ -63,4 +64,12 @@ public class Configuration {
 
 	protected boolean lazyLoadingEnabled = false;
 	protected ProxyFactory proxyFactory = new JavassistProxyFactory();
+
+	protected static class StrictMap<V> extends HashMap<String, V> {
+
+		private static final long serialVersionUID = -6970800884001334580L;
+
+		private final String name;
+
+	}
 }

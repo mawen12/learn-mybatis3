@@ -2,7 +2,6 @@ package com.mawen.learn.mybatis.session;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,7 +13,6 @@ import java.util.Properties;
 import com.mawen.learn.mybatis.cursor.Cursor;
 import com.mawen.learn.mybatis.executor.BatchResult;
 import com.mawen.learn.mybatis.reflection.ExceptionUtil;
-import sun.jvm.hotspot.debugger.ReadResult;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -75,194 +73,255 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 		this.localSqlSession.set(openSession(connection));
 	}
 
+	public void setManagedSession(TransactionIsolationLevel level) {
+		this.localSqlSession.set(openSession(level));
+	}
+
+	public void setManagedSession(ExecutorType execType) {
+		this.localSqlSession.set(openSession(execType));
+	}
+
+	public void setManagedSession(ExecutorType execType, boolean autoCommit) {
+		this.localSqlSession.set(openSession(execType, autoCommit));
+	}
+
+	public void setManagedSession(ExecutorType execType, TransactionIsolationLevel level) {
+		this.localSqlSession.set(openSession(execType, level));
+	}
+
+	public void setManagedSession(ExecutorType execType, Connection connection) {
+		this.localSqlSession.set(openSession(execType, connection));
+	}
+
+	public boolean isManagedSessionStarted() {
+		return this.localSqlSession.get() != null;
+	}
+
 	@Override
 	public <T> T selectOne(String statement) {
-		return null;
+		return sqlSessionProxy.selectOne(statement);
 	}
 
 	@Override
 	public <T> T selectOne(String statement, Object parameter) {
-		return null;
+		return sqlSessionProxy.selectOne(statement, parameter);
 	}
 
 	@Override
 	public <E> List<E> selectList(String statement) {
-		return List.of();
+		return sqlSessionProxy.selectList(statement);
 	}
 
 	@Override
 	public <E> List<E> selectList(String statement, Object parameter) {
-		return List.of();
+		return sqlSessionProxy.selectList(statement, parameter);
 	}
 
 	@Override
 	public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
-		return List.of();
+		return sqlSessionProxy.selectList(statement, parameter, rowBounds);
 	}
 
 	@Override
 	public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
-		return Map.of();
+		return sqlSessionProxy.selectMap(statement, mapKey);
 	}
 
 	@Override
 	public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
-		return Map.of();
+		return sqlSessionProxy.selectMap(statement, parameter, mapKey);
 	}
 
 	@Override
 	public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
-		return Map.of();
+		return sqlSessionProxy.selectMap(statement, parameter, mapKey, rowBounds);
 	}
 
 	@Override
 	public <T> Cursor<T> selectCursor(String statement) {
-		return null;
+		return sqlSessionProxy.selectCursor(statement);
 	}
 
 	@Override
 	public <T> Cursor<T> selectCursor(String statement, Object parameter) {
-		return null;
+		return sqlSessionProxy.selectCursor(statement, parameter);
 	}
 
 	@Override
 	public <T> Cursor<T> selectCursor(String statement, Object parameter, RowBounds rowBounds) {
-		return null;
+		return sqlSessionProxy.selectCursor(statement, parameter, rowBounds);
 	}
 
 	@Override
 	public void select(String statement, Object parameter, ResultHandler handler) {
-
+		sqlSessionProxy.select(statement, parameter, handler);
 	}
 
 	@Override
 	public void select(String statement, ResultHandler handler) {
-
+		sqlSessionProxy.select(statement, handler);
 	}
 
 	@Override
 	public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
-
+		sqlSessionProxy.select(statement, parameter, rowBounds, handler);
 	}
 
 	@Override
 	public int insert(String statement) {
-		return 0;
+		return sqlSessionProxy.insert(statement);
 	}
 
 	@Override
 	public int insert(String statement, Object parameter) {
-		return 0;
+		return sqlSessionProxy.insert(statement, parameter);
 	}
 
 	@Override
 	public int update(String statement) {
-		return 0;
+		return sqlSessionProxy.update(statement);
 	}
 
 	@Override
 	public int update(String statement, Object parameter) {
-		return 0;
+		return sqlSessionProxy.update(statement, parameter);
 	}
 
 	@Override
 	public int delete(String statement) {
-		return 0;
+		return sqlSessionProxy.delete(statement);
 	}
 
 	@Override
 	public int delete(String statement, Object parameter) {
-		return 0;
+		return sqlSessionProxy.delete(statement, parameter);
 	}
 
 	@Override
 	public void commit() {
-
+		SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot commit. No managed session is started.");
+		}
+		sqlSession.commit();
 	}
 
 	@Override
 	public void commit(boolean force) {
-
+		SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot commit. No managed session is started.");
+		}
+		sqlSession.commit(false);
 	}
 
 	@Override
 	public void rollback() {
-
+		final SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot rollback. No managed session is started.");
+		}
+		sqlSession.rollback();
 	}
 
 	@Override
 	public void rollback(boolean force) {
-
+		final SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot rollback. No managed session is started.");
+		}
+		sqlSession.rollback(force);
 	}
 
 	@Override
 	public List<BatchResult> flushStatements() {
-		return List.of();
+		final SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot close. No managed session is started.");
+		}
+		return sqlSession.flushStatements();
 	}
 
 	@Override
 	public void close() {
-
+		final SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot close. No managed session is started.");
+		}
+		try {
+			sqlSession.close();
+		}
+		finally {
+			localSqlSession.remove();
+		}
 	}
 
 	@Override
 	public void clearCache() {
-
+		final SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot clear the cache. No managed session is started.");
+		}
+		sqlSession.clearCache();
 	}
 
 	@Override
 	public <T> T getMapper(Class<T> type) {
-		return null;
+		return getConfiguration().getMapper(type, this);
 	}
 
 	@Override
 	public Connection getConnection() {
-		return null;
+		SqlSession sqlSession = localSqlSession.get();
+		if (sqlSession == null) {
+			throw new SqlSessionException("Error: Cannot get connection. No managed session is started.");
+		}
+		return sqlSessionProxy.getConnection();
 	}
 
 	@Override
 	public SqlSession openSession() {
-		return null;
+		return sqlSessionFactory.openSession();
 	}
 
 	@Override
 	public SqlSession openSession(boolean autoCommit) {
-		return null;
+		return sqlSessionFactory.openSession(autoCommit);
 	}
 
 	@Override
 	public SqlSession openSession(Connection connection) {
-		return null;
+		return sqlSessionFactory.openSession(connection);
 	}
 
 	@Override
 	public SqlSession openSession(TransactionIsolationLevel level) {
-		return null;
+		return sqlSessionFactory.openSession(level);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType) {
-		return null;
+		return sqlSessionFactory.openSession(execType);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, boolean autoCommit) {
-		return null;
+		return sqlSessionFactory.openSession(execType, autoCommit);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, TransactionIsolationLevel level) {
-		return null;
+		return sqlSessionFactory.openSession(execType, level);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, Connection connection) {
-		return null;
+		return sqlSessionFactory.openSession(execType, connection);
 	}
 
 	@Override
 	public Configuration getConfiguration() {
-		return null;
+		return sqlSessionProxy.getConfiguration();
 	}
 
 	private class SqlSessionInterceptor implements InvocationHandler {
