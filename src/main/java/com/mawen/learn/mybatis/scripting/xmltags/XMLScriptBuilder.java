@@ -9,6 +9,7 @@ import com.mawen.learn.mybatis.builder.BaseBuilder;
 import com.mawen.learn.mybatis.builder.BuilderException;
 import com.mawen.learn.mybatis.mapping.SqlSource;
 import com.mawen.learn.mybatis.parsing.XNode;
+import com.mawen.learn.mybatis.scripting.defaults.RawSqlSource;
 import com.mawen.learn.mybatis.session.Configuration;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -51,10 +52,10 @@ public class XMLScriptBuilder extends BaseBuilder {
 		MixedSqlNode rootSqlNode = parseDynamicTags(context);
 		SqlSource sqlSource;
 		if (isDynamic) {
-			sqlSource = new DynamicSqlSource(context, rootSqlNode);
+			sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
 		}
 		else {
-			sqlSource = new RawSqlSource(context, rootSqlNode, parameterType);
+			sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);
 		}
 		return sqlSource;
 	}

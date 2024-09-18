@@ -10,7 +10,7 @@ public class IfSqlNode implements SqlNode{
 	private final String test;
 	private final SqlNode contents;
 
-	public IfSqlNode(String test, SqlNode contents) {
+	public IfSqlNode(SqlNode contents, String test) {
 		this.test = test;
 		this.contents = contents;
 		this.evaluator = new ExpressionEvaluator();
