@@ -27,7 +27,11 @@ import com.mawen.learn.mybatis.datasource.jndi.JndiDataSourceFactory;
 import com.mawen.learn.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.mawen.learn.mybatis.datasource.unpooled.UnpooledDataSource;
 import com.mawen.learn.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
+import com.mawen.learn.mybatis.executor.BatchExecutor;
+import com.mawen.learn.mybatis.executor.CachingExecutor;
 import com.mawen.learn.mybatis.executor.Executor;
+import com.mawen.learn.mybatis.executor.ReuseExecutor;
+import com.mawen.learn.mybatis.executor.SimpleExecutor;
 import com.mawen.learn.mybatis.executor.keygen.KeyGenerator;
 import com.mawen.learn.mybatis.executor.loader.ProxyFactory;
 import com.mawen.learn.mybatis.executor.loader.cglib.CglibProxyFactory;
@@ -35,6 +39,8 @@ import com.mawen.learn.mybatis.executor.loader.javassist.JavassistProxyFactory;
 import com.mawen.learn.mybatis.executor.parameter.ParameterHandler;
 import com.mawen.learn.mybatis.executor.resultset.DefaultResultSetHandler;
 import com.mawen.learn.mybatis.executor.resultset.ResultSetHandler;
+import com.mawen.learn.mybatis.executor.statement.RoutingStatementHandler;
+import com.mawen.learn.mybatis.executor.statement.StatementHandler;
 import com.mawen.learn.mybatis.io.VFS;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
@@ -59,6 +65,7 @@ import com.mawen.learn.mybatis.scripting.LanguageDriver;
 import com.mawen.learn.mybatis.scripting.LanguageDriverRegistry;
 import com.mawen.learn.mybatis.scripting.defaults.RawLanguageDriver;
 import com.mawen.learn.mybatis.scripting.xmltags.XMLLanguageDriver;
+import com.mawen.learn.mybatis.transaction.Transaction;
 import com.mawen.learn.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.mawen.learn.mybatis.transaction.managed.ManagedTransactionFactory;
 import com.mawen.learn.mybatis.type.EnumTypeHandler;
@@ -534,7 +541,45 @@ public class Configuration {
 
 	public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
 		ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+		resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
+		return resultSetHandler;
+	}
 
+	public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+		StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+		statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
+		return statementHandler;
+	}
+
+	public Executor newExecutor(Transaction transaction) {
+		return newExecutor(transaction, defaultExecutorType);
+	}
+
+	public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
+		executorType = executorType == null ? defaultExecutorType : executorType;
+		executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
+
+		Executor executor;
+		if (ExecutorType.BATCH == executorType) {
+			executor = new BatchExecutor(this, transaction);
+		}
+		else if (ExecutorType.REUSE == executorType) {
+			executor = new ReuseExecutor(this, transaction);
+		}
+		else {
+			executor = new SimpleExecutor(this, transaction);
+		}
+
+		if (cacheEnabled) {
+			executor = new CachingExecutor(executor);
+		}
+
+		executor = (Executor) interceptorChain.pluginAll(executor);
+		return executor;
+	}
+
+	public void addKeyGenerator(String id, KeyGenerator keyGenerator) {
+		keyGenerators.put(id, keyGenerator);
 	}
 
 	protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {

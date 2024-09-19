@@ -207,6 +207,10 @@ public final class MappedStatement {
 		return cache;
 	}
 
+	public boolean isUseCache() {
+		return useCache;
+	}
+
 	public ParameterMap getParameterMap() {
 		return parameterMap;
 	}

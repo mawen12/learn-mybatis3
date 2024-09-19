@@ -9,6 +9,7 @@ import com.mawen.learn.mybatis.executor.Executor;
 import com.mawen.learn.mybatis.executor.ExecutorException;
 import com.mawen.learn.mybatis.executor.keygen.KeyGenerator;
 import com.mawen.learn.mybatis.executor.parameter.ParameterHandler;
+import com.mawen.learn.mybatis.executor.resultset.ResultSetHandler;
 import com.mawen.learn.mybatis.mapping.BoundSql;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
 import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
@@ -87,7 +88,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
 
 	protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
 
-	protected void setStatementTimeout(Statement statement, Integer transactionTimeout) {
+	protected void setStatementTimeout(Statement statement, Integer transactionTimeout) throws SQLException {
 		Integer queryTimeout = null;
 		if (mappedStatement.getTimeout() == null) {
 			queryTimeout = mappedStatement.getTimeout();
