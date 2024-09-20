@@ -115,7 +115,7 @@ public class MetaClass {
 				return TypeParameterResolver.resolveFieldType(field, reflector.getType());
 			}
 		}
-		catch (NoSuchFieldException | NoSuchMethodException e) {
+		catch (NoSuchFieldException | IllegalAccessException e) {
 			// Ignored
 		}
 		return null;

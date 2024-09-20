@@ -150,7 +150,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		return props;
 	}
 
-	private void loadCustomVfs(Properties props) {
+	private void loadCustomVfs(Properties props) throws ClassNotFoundException {
 		String value = props.getProperty("vfsImpl");
 		if (value != null) {
 			String[] clazzes = value.split(",");
@@ -195,7 +195,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void pluginElement(XNode parent) {
+	private void pluginElement(XNode parent) throws Exception {
 		if (parent != null) {
 			for (XNode child : parent.getChildren()) {
 				String interceptor = child.getStringAttribute("interceptor");
@@ -207,7 +207,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void objectFactoryElement(XNode context) {
+	private void objectFactoryElement(XNode context) throws Exception {
 		if (context != null) {
 			String type = context.getStringAttribute("type");
 			Properties properties = context.getChildrenAsProperties();
@@ -217,15 +217,15 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void objectWrapperFactoryElement(XNode context) {
+	private void objectWrapperFactoryElement(XNode context) throws Exception {
 		if (context != null) {
 			String type = context.getStringAttribute("type");
-			ObjectWrapperFactory factory = resolveClass(type).getDeclaredConstructor().newInstance();
+			ObjectWrapperFactory factory = (ObjectWrapperFactory) resolveClass(type).getDeclaredConstructor().newInstance();
 			configuration.setObjectWrapperFactory(factory);
 		}
 	}
 
-	private void reflectorFactoryElement(XNode context) {
+	private void reflectorFactoryElement(XNode context) throws Exception{
 		if (context != null) {
 			String type = context.getStringAttribute("type");
 			ReflectorFactory factory = (ReflectorFactory) resolveClass(type).getDeclaredConstructor().newInstance();
@@ -255,18 +255,18 @@ public class XMLConfigBuilder extends BaseBuilder {
 		configuration.setSafeResultHandlerEnabled(booleanValueOf(props.getProperty("safeResultHandlerEnabled"), true));
 		configuration.setDefaultScriptingLanguage(resolveClass(props.getProperty("defaultScriptingLanguage")));
 		configuration.setDefaultEnumTypeHandler(resolveClass(props.getProperty("defaultEnumTypeHandler")));
-		configuration.setCallSetterOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));
+		configuration.setCallSettersOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));
 		configuration.setUseActualParamName(booleanValueOf(props.getProperty("useActualParamName"), true));
 		configuration.setReturnInstanceForEmptyRow(booleanValueOf(props.getProperty("returnInstanceForEmptyRow"), false));
 		configuration.setLogPrefix(props.getProperty("logPrefix"));
 		configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
-		configuration.setShrinkWhitespacesInsql(booleanValueOf(props.getProperty("shrinkWhitespacesInSql"), false));
+		configuration.setShrinkWhitespacesInSql(booleanValueOf(props.getProperty("shrinkWhitespacesInSql"), false));
 		configuration.setArgNameBasedConstructorAutoMapping(booleanValueOf(props.getProperty("argNameBasedConstructorAutoMapping"), false));
 		configuration.setDefaultSqlProviderType(resolveClass(props.getProperty("defaultSqlProviderType")));
 		configuration.setNullableOnForEach(booleanValueOf(props.getProperty("nullableOnForEach"), false));
 	}
 
-	private void environmentsElement(XNode context) {
+	private void environmentsElement(XNode context) throws Exception {
 		if (context != null) {
 			if (environment == null) {
 				environment = context.getStringAttribute("default");
@@ -289,7 +289,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void databaseIdProviderElement(XNode context) {
+	private void databaseIdProviderElement(XNode context) throws Exception{
 		DatabaseIdProvider databaseIdProvider = null;
 		if (context != null) {
 			String type = context.getStringAttribute("type");
@@ -339,7 +339,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void mapperElement(XNode parent) {
+	private void mapperElement(XNode parent) throws Exception {
 		if (parent != null) {
 			for (XNode child : parent.getChildren()) {
 				if ("package".equals(child.getName())) {

@@ -8,7 +8,6 @@ import com.mawen.learn.mybatis.datasource.DataSourceException;
 import com.mawen.learn.mybatis.datasource.DataSourceFactory;
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.SystemMetaObject;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

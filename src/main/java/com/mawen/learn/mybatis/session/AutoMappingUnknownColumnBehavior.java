@@ -1,7 +1,5 @@
 package com.mawen.learn.mybatis.session;
 
-import javax.management.StringValueExp;
-
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
 import com.mawen.learn.mybatis.mapping.MappedStatement;

@@ -12,6 +12,7 @@ import com.mawen.learn.mybatis.cursor.Cursor;
 import com.mawen.learn.mybatis.executor.statement.StatementUtil;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
+import com.mawen.learn.mybatis.logging.jdbc.ConnectionLogger;
 import com.mawen.learn.mybatis.mapping.BoundSql;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
 import com.mawen.learn.mybatis.mapping.ParameterMapping;
@@ -322,7 +323,7 @@ public abstract class BaseExecutor implements Executor {
 		return list;
 	}
 
-	protected Connection getConnection(Log statementLog) {
+	protected Connection getConnection(Log statementLog) throws SQLException {
 		Connection connection = transaction.getConnection();
 		if (statementLog.isDebugEnabled()) {
 			return ConnectionLogger.newInstance(connection, statementLog, queryStack);

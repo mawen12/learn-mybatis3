@@ -10,7 +10,7 @@ import com.mawen.learn.mybatis.reflection.ReflectionException;
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory{
 
 	@Override
-	public boolean hasWrapperFor(Class<?> clazz) {
+	public boolean hasWrapperFor(Object object) {
 		return false;
 	}
 

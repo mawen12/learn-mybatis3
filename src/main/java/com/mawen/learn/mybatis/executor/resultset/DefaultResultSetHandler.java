@@ -722,7 +722,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 	}
 
 	private boolean applyArgNameBasedConstructorAutoMapping(ResultSetWrapper rsw, ResultMap resultMap, String columnPrefix, Class<?> resultType,
-	                                                        List<Class<?>> constructorArgTypes, List<Object> constructorArgs, Constructor<?> constructor, boolean foundValues) {
+	                                                        List<Class<?>> constructorArgTypes, List<Object> constructorArgs, Constructor<?> constructor, boolean foundValues) throws SQLException {
 		List<String> missingArgs = null;
 		Parameter[] params = constructor.getParameters();
 		for (Parameter param : params) {

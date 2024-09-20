@@ -1,6 +1,7 @@
 package com.mawen.learn.mybatis.builder.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
@@ -199,7 +200,7 @@ public class ProviderSqlSource implements SqlSource {
 		return sql != null ? sql.toString() : null;
 	}
 
-	private Class<?> getProviderType(Configuration configuration, Annotation providerAnnotation, Method mapperMethod) throws NoSuchMethodException {
+	private Class<?> getProviderType(Configuration configuration, Annotation providerAnnotation, Method mapperMethod) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		Class<?> type = (Class<?>) providerAnnotation.annotationType().getMethod("type").invoke(providerAnnotation);
 		Class<?> value = (Class<?>) providerAnnotation.annotationType().getMethod("value").invoke(providerAnnotation);
 

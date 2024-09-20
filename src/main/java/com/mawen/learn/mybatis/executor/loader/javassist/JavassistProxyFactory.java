@@ -104,7 +104,7 @@ public class JavassistProxyFactory implements ProxyFactory {
 		public static Object createProxy(Object target, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			Class<?> type = target.getClass();
 			EnhancedResultObjectProxyImpl callback = new EnhancedResultObjectProxyImpl(type, lazyLoader, configuration, objectFactory, constructorArgTypes, constructorArgs);
-			Object enhanced = createProxy(type, callback, constructorArgTypes, constructorArgs);
+			Object enhanced = JavassistProxyFactory.createProxy(type, callback, constructorArgTypes, constructorArgs);
 			PropertyCopier.copyBeanProperties(type, target, enhanced);
 			return enhanced;
 		}
@@ -167,7 +167,7 @@ public class JavassistProxyFactory implements ProxyFactory {
 		public static Object createProxy(Object target, Map<String, ResultLoaderMap.LoadPair> unloadProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			final Class<?> type = target.getClass();
 			EnhancedDeserializationProxyImpl callback = new EnhancedDeserializationProxyImpl(type, unloadProperties, objectFactory, constructorArgTypes, constructorArgs);
-			Object enhanced = createProxy(type, callback, constructorArgTypes, constructorArgs);
+			Object enhanced = JavassistProxyFactory.createProxy(type, callback, constructorArgTypes, constructorArgs);
 			PropertyCopier.copyBeanProperties(type, target, enhanced);
 			return enhanced;
 		}

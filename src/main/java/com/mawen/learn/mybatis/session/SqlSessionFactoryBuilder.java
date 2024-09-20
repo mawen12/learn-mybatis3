@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Properties;
 
+import com.mawen.learn.mybatis.builder.xml.XMLConfigBuilder;
 import com.mawen.learn.mybatis.exceptions.ExceptionFactory;
 import com.mawen.learn.mybatis.executor.ErrorContext;
 import com.mawen.learn.mybatis.session.defaults.DefaultSqlSessionFactory;

@@ -1,10 +1,10 @@
 package com.mawen.learn.mybatis.session;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,7 @@ import java.util.function.BiFunction;
 
 import com.mawen.learn.mybatis.binding.MapperRegistry;
 import com.mawen.learn.mybatis.builder.CacheRefResolver;
+import com.mawen.learn.mybatis.builder.IncompleteElementException;
 import com.mawen.learn.mybatis.builder.ResultMapResolver;
 import com.mawen.learn.mybatis.builder.annotation.MethodResolver;
 import com.mawen.learn.mybatis.builder.xml.XMLStatementBuilder;
@@ -25,7 +26,6 @@ import com.mawen.learn.mybatis.cache.decorators.WeakCache;
 import com.mawen.learn.mybatis.cache.impl.PerpetualCache;
 import com.mawen.learn.mybatis.datasource.jndi.JndiDataSourceFactory;
 import com.mawen.learn.mybatis.datasource.pooled.PooledDataSourceFactory;
-import com.mawen.learn.mybatis.datasource.unpooled.UnpooledDataSource;
 import com.mawen.learn.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import com.mawen.learn.mybatis.executor.BatchExecutor;
 import com.mawen.learn.mybatis.executor.CachingExecutor;
@@ -44,6 +44,12 @@ import com.mawen.learn.mybatis.executor.statement.StatementHandler;
 import com.mawen.learn.mybatis.io.VFS;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
+import com.mawen.learn.mybatis.logging.commons.JakartaCommonsLoggingImpl;
+import com.mawen.learn.mybatis.logging.jdk14.Jdk14LoggingImpl;
+import com.mawen.learn.mybatis.logging.log4j2.Log4j2Impl;
+import com.mawen.learn.mybatis.logging.nologging.NoLoggingImpl;
+import com.mawen.learn.mybatis.logging.slf4j.Slf4jImpl;
+import com.mawen.learn.mybatis.logging.stdout.StdOutImpl;
 import com.mawen.learn.mybatis.mapping.BoundSql;
 import com.mawen.learn.mybatis.mapping.Environment;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
@@ -68,14 +74,10 @@ import com.mawen.learn.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.mawen.learn.mybatis.transaction.Transaction;
 import com.mawen.learn.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.mawen.learn.mybatis.transaction.managed.ManagedTransactionFactory;
-import com.mawen.learn.mybatis.type.EnumTypeHandler;
 import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
-import com.sun.tools.jdi.RawCommandLineLauncher;
-import jdk.vm.ci.code.site.ExceptionHandler;
-
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/8/30
@@ -170,11 +172,10 @@ public class Configuration {
 		typeAliasRegistry.registerAlias("DB_VENDOR", VendorDatabaseIdProvider.class);
 
 		typeAliasRegistry.registerAlias("XML", XMLLanguageDriver.class);
-		typeAliasRegistry.registerAlias("RAW", RawCommandLineLauncher.class);
+		typeAliasRegistry.registerAlias("RAW", RawLanguageDriver.class);
 
 		typeAliasRegistry.registerAlias("SLF4J", Slf4jImpl.class);
 		typeAliasRegistry.registerAlias("COMMONS_LOGGING", JakartaCommonsLoggingImpl.class);
-		typeAliasRegistry.registerAlias("LOG4J", Log4jImpl.class);
 		typeAliasRegistry.registerAlias("LOG4J2", Log4j2Impl.class);
 		typeAliasRegistry.registerAlias("JDK_LOGGING", Jdk14LoggingImpl.class);
 		typeAliasRegistry.registerAlias("STDOUT_LOGGING", StdOutImpl.class);
@@ -317,7 +318,7 @@ public class Configuration {
 		loadResources.add(resource);
 	}
 
-	public boolean isLoadResources(String resource) {
+	public boolean isResourceLoaded(String resource) {
 		return loadResources.contains(resource);
 	}
 
@@ -396,11 +397,11 @@ public class Configuration {
 		this.useGeneratedKeys = useGeneratedKeys;
 	}
 
-	public ExecutorType getExecutorType() {
+	public ExecutorType getDefaultExecutorType() {
 		return defaultExecutorType;
 	}
 
-	public void setExecutorType(ExecutorType defaultExecutorType) {
+	public void setDefaultExecutorType(ExecutorType defaultExecutorType) {
 		this.defaultExecutorType = defaultExecutorType;
 	}
 
@@ -529,6 +530,14 @@ public class Configuration {
 		return languageRegistry.getDefaultDriver();
 	}
 
+	public LanguageDriver getLanguageDriver(Class<? extends LanguageDriver> langClass) {
+		if (langClass == null) {
+			return languageRegistry.getDefaultDriver();
+		}
+		languageRegistry.register(langClass);
+		return languageRegistry.getDriver(langClass);
+	}
+
 	public MetaObject newMetaObject(Object object) {
 		return MetaObject.forObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
 	}
@@ -582,12 +591,274 @@ public class Configuration {
 		keyGenerators.put(id, keyGenerator);
 	}
 
+	public Collection<String> getKeyGeneratorNames() {
+		return keyGenerators.keySet();
+	}
+
+	public Collection<KeyGenerator> getKeyGenerators() {
+		return keyGenerators.values();
+	}
+
+	public KeyGenerator getKeyGenerator(String id) {
+		return keyGenerators.get(id);
+	}
+
+	public boolean hasKeyGenerator(String id) {
+		return keyGenerators.containsKey(id);
+	}
+
+	public void addCache(Cache cache) {
+		caches.put(cache.getId(), cache);
+	}
+
+	public Collection<String> getCacheNames() {
+		return caches.keySet();
+	}
+
+	public Collection<Cache> getCaches() {
+		return caches.values();
+	}
+
+	public Cache getCache(String id) {
+		return caches.get(id);
+	}
+
+	public boolean hasCache(String id) {
+		return caches.containsKey(id);
+	}
+
+	public void addResultMap(ResultMap rm) {
+		resultMaps.put(rm.getId(), rm);
+		checkLocallyForDiscriminatedNestedResultMaps(rm);
+		checkGloballyForDiscriminatedNestedResultMaps(rm);
+	}
+
+	public Collection<String> getResultMapNames() {
+		return resultMaps.keySet();
+	}
+
+	public Collection<ResultMap> getResultMaps() {
+		return resultMaps.values();
+	}
+
+	public ResultMap getResultMap(String id) {
+		return resultMaps.get(id);
+	}
+
+	public boolean hasResultMap(String id) {
+		return resultMaps.containsKey(id);
+	}
+
+	public void addParameterMap(ParameterMap pm) {
+		parameterMaps.put(pm.getId(), pm);
+	}
+
+	public Collection<String> getParameterMapNames() {
+		return parameterMaps.keySet();
+	}
+
+	public Collection<ParameterMap> getParameterMaps() {
+		return parameterMaps.values();
+	}
+
+	public ParameterMap getParameterMap(String id) {
+		return parameterMaps.get(id);
+	}
+
+	public boolean hasParameterMap(String id) {
+		return parameterMaps.containsKey(id);
+	}
+
+	public void addMappedStatement(MappedStatement ms) {
+		mappedStatements.put(ms.getId(), ms);
+	}
+
+	public Collection<String> getMappedStatementNames() {
+		buildAllStatements();
+		return mappedStatements.keySet();
+	}
+
+	public Collection<MappedStatement> getMappedStatement() {
+		buildAllStatements();
+		return mappedStatements.values();
+	}
+
+	public Collection<XMLStatementBuilder> getIncompleteStatements() {
+		return incompleteStatements;
+	}
+
+	public void addIncompleteStatement(XMLStatementBuilder incompleteStatement) {
+		incompleteStatements.add(incompleteStatement);
+	}
+
+	public Collection<CacheRefResolver> getIncompleteCacheRefs() {
+		return incompleteCacheRefs;
+	}
+
+	public void addIncompleteCacheRef(CacheRefResolver incompleteCacheRef) {
+		incompleteCacheRefs.add(incompleteCacheRef);
+	}
+
+	public Collection<ResultMapResolver> getIncompleteResultMaps() {
+		return incompleteResultMaps;
+	}
+
+	public void addIncompleteResultMap(ResultMapResolver resultMapResolver) {
+		incompleteResultMaps.add(resultMapResolver);
+	}
+
+	public void addIncompleteMethod(MethodResolver builder) {
+		incompleteMethods.add(builder);
+	}
+
+	public Collection<MethodResolver> getIncompleteMethods() {
+		return incompleteMethods;
+	}
+
+	public MappedStatement getMappedStatement(String id) {
+		return this.getMappedStatement(id, true);
+	}
+
+	public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
+		if (validateIncompleteStatements) {
+			buildAllStatements();
+		}
+		return mappedStatements.get(id);
+	}
+
+	public Map<String, XNode> getSqlFragments() {
+		return sqlFragments;
+	}
+
+	public void addInterceptor(Interceptor interceptor) {
+		interceptorChain.addInterceptor(interceptor);
+	}
+
+	public void addMappers(String packageName, Class<?> superType) {
+		mapperRegistry.addMappers(packageName, superType);
+	}
+
+	public void addMappers(String packageName) {
+		mapperRegistry.addMappers(packageName);
+	}
+
+	public <T> void addMapper(Class<T> type) {
+		mapperRegistry.addMapper(type);
+	}
+
+	public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+		return mapperRegistry.getMapper(type, sqlSession);
+	}
+
+	public boolean hasMapper(Class<?> type) {
+		return mapperRegistry.hasMapper(type);
+	}
+
+	public boolean hasStatement(String statementName) {
+		return hasStatement(statementName, true);
+	}
+
+	public boolean hasStatement(String statementName, boolean validateIncompleteStatements) {
+		if (validateIncompleteStatements) {
+			buildAllStatements();
+		}
+		return mappedStatements.containsKey(statementName);
+	}
+
+	public void addCacheRef(String namespace, String referencedNamespace) {
+		cacheRefMap.put(namespace, referencedNamespace);
+	}
+
+	protected void buildAllStatements() {
+		parsePendingResultMaps();
+		if (!incompleteCacheRefs.isEmpty()) {
+			synchronized (incompleteCacheRefs) {
+				incompleteCacheRefs.removeIf(x -> x.resolveCacheRef() != null);
+			}
+		}
+
+		if (!incompleteStatements.isEmpty()) {
+			synchronized (incompleteStatements) {
+				incompleteStatements.removeIf(x -> {
+					x.parseStatementNode();
+					return true;
+				});
+			}
+		}
+
+		if (!incompleteMethods.isEmpty()) {
+			synchronized (incompleteMethods) {
+				incompleteMethods.removeIf(x -> {
+					x.resolve();
+					return true;
+				});
+			}
+		}
+	}
+
+	private void parsePendingResultMaps() {
+		if (incompleteResultMaps.isEmpty()) {
+			return;
+		}
+
+		synchronized (incompleteResultMaps) {
+			boolean resolved;
+			IncompleteElementException ex = null;
+
+			do {
+				resolved = false;
+				Iterator<ResultMapResolver> iterator = incompleteResultMaps.iterator();
+				while (iterator.hasNext()) {
+					try {
+						iterator.next().resolve();
+						iterator.remove();
+						resolved = true;
+					}
+					catch (IncompleteElementException e) {
+						ex = e;
+					}
+				}
+			}
+			while (resolved);
+
+			if (!incompleteResultMaps.isEmpty() && ex != null) {
+				throw ex;
+			}
+		}
+	}
+
+	protected String extractNamespace(String statementId) {
+		int lastPeriod = statementId.lastIndexOf('.');
+		return lastPeriod > 0 ? statementId.substring(0, lastPeriod) : null;
+	}
+
+	protected void checkGloballyForDiscriminatedNestedResultMaps(ResultMap rm) {
+		if (rm.hasNestedResultMaps()) {
+			for (Map.Entry<String, ResultMap> entry : resultMaps.entrySet()) {
+				Object value = entry.getValue();
+				if (value instanceof ResultMap) {
+					ResultMap entryResultMap = (ResultMap) value;
+					if (!entryResultMap.hasNestedResultMaps() && entryResultMap.getDiscriminator() != null) {
+						Collection<String> discriminatedResultMapNames = entryResultMap.getDiscriminator().getDiscriminatorMap().values();
+						if (discriminatedResultMapNames.contains(rm.getId())) {
+							entryResultMap.forceNestedResultMaps();
+						}
+					}
+				}
+			}
+		}
+	}
+
 	protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {
 		if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
 			for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {
 				String discriminatedResultMapName = entry.getValue();
 				if (hasResultMap(discriminatedResultMapName)) {
-					resultMaps
+					ResultMap discriminatedResultMap = resultMaps.get(discriminatedResultMapName);
+					if (discriminatedResultMap.hasNestedResultMaps()) {
+						rm.forceNestedResultMaps();
+						break;
+					}
 				}
 			}
 		}

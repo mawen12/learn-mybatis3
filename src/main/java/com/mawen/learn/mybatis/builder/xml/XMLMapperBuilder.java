@@ -116,7 +116,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
 	private void buildStatementFromContext(List<XNode> list, String requiredDatabaseId) {
 		for (XNode context : list) {
-			final XMLStatementBuilder statementParser = new XMLStatementBuilder(context, builderAssistant, context, requiredDatabaseId);
+			final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context, requiredDatabaseId);
 			try {
 				statementParser.parseStatementNode();
 			}

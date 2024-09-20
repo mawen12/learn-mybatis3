@@ -155,10 +155,14 @@ public class ResultSetWrapper {
 	public List<String> getUnmappedColumnNames(ResultMap resultMap, String columnPrefix) {
 		List<String> unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
 		if (unMappedColumnNames == null) {
-			loadMappedAndUnMappedColumnNames(resultMap, columnPrefix);
+			loadMappedAndUnmappedColumnNames(resultMap, columnPrefix);
 			unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
 		}
 		return unMappedColumnNames;
+	}
+
+	private String getMapKey(ResultMap resultMap, String columnPrefix) {
+		return resultMap.getId() + ":" + columnPrefix;
 	}
 
 	private Set<String> prependPrefixes(Set<String> columnNames, String prefix) {

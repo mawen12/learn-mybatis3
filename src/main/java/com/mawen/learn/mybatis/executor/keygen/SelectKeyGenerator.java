@@ -43,7 +43,7 @@ public class SelectKeyGenerator implements KeyGenerator {
 
 	private void processGeneratedKeys(Executor executor, MappedStatement ms, Object parameter) {
 		try {
-			if (parameter != null && keyStatement != null && keyStatement.getKeProperties() != null) {
+			if (parameter != null && keyStatement != null && keyStatement.getKeyProperties() != null) {
 				String[] keyProperties = keyStatement.getKeyProperties();
 				final Configuration configuration = ms.getConfiguration();
 				final MetaObject metaParam = configuration.newMetaObject(parameter);

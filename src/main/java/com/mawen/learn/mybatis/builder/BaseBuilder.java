@@ -1,6 +1,5 @@
 package com.mawen.learn.mybatis.builder;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +12,6 @@ import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

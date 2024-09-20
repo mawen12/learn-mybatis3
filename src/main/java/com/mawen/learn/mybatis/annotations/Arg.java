@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.UnknownTypeHandler;
-import com.sun.org.apache.bcel.internal.util.Args;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

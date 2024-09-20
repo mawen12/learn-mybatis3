@@ -2,8 +2,10 @@ package com.mawen.learn.mybatis.session.defaults;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.Executor;
 
+import com.mawen.learn.mybatis.exceptions.ExceptionFactory;
+import com.mawen.learn.mybatis.executor.ErrorContext;
+import com.mawen.learn.mybatis.executor.Executor;
 import com.mawen.learn.mybatis.mapping.Environment;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.session.ExecutorType;
@@ -75,7 +77,17 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 		Transaction tx = null;
 		try {
 			final Environment environment = configuration.getEnvironment();
-
+			TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+			tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+			Executor executor = configuration.newExecutor(tx, execType);
+			return new DefaultSqlSession(configuration, executor, autoCommit);
+		}
+		catch (Exception e) {
+			closeTransaction(tx);
+			throw ExceptionFactory.wrapException("Error opening session. Cause: " + e, e);
+		}
+		finally {
+			ErrorContext.instance().reset();
 		}
 	}
 
@@ -93,7 +105,13 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 			TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
 			Transaction tx = transactionFactory.newTransaction(connection);
 			Executor executor = configuration.newExecutor(tx, execType);
-
+			return new DefaultSqlSession(configuration, executor, autoCommit);
+		}
+		catch (Exception e) {
+			throw ExceptionFactory.wrapException("Error opening session. Cause: " + e, e);
+		}
+		finally {
+			ErrorContext.instance().reset();
 		}
 	}
 

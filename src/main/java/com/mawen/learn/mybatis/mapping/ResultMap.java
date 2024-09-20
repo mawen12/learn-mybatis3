@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.mawen.learn.mybatis.annotations.Param;
+import com.mawen.learn.mybatis.builder.BuilderException;
 import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
 import com.mawen.learn.mybatis.reflection.ParamNameUtil;
@@ -89,6 +90,10 @@ public class ResultMap {
 
 	public Boolean getAutoMapping() {
 		return autoMapping;
+	}
+
+	public void forceNestedResultMaps() {
+		this.hasNestedResultMaps = true;
 	}
 
 	public static class Builder {
@@ -176,7 +181,7 @@ public class ResultMap {
 
 				if (actualArgNames == null) {
 					throw new BuilderException("Error in result map '" + resultMap.id + "'. Failed to find a constructor in '" + resultMap.getType().getName()
-							+ "' by arg names " + constructorArgNames + ". There might be more info in debug log.");
+					                           + "' by arg names " + constructorArgNames + ". There might be more info in debug log.");
 				}
 
 				resultMap.constructorResultMappings.sort((o1, o2) -> {

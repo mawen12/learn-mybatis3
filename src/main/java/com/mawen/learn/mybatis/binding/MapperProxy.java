@@ -91,7 +91,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 							return new DefaultMethodInvoker(getMethodHandleJava9(method));
 						}
 					}
-					catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+					catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -106,7 +106,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 		}
 	}
 
-	private MethodHandle getMethodHandleJava9(Method method) throws InvocationTargetException, IllegalAccessException {
+	private MethodHandle getMethodHandleJava9(Method method) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 		Class<?> declaringClass = method.getDeclaringClass();
 		return ((MethodHandles.Lookup) privateLookupInMethod.invoke(null, declaringClass, MethodHandles.lookup()))
 				.findSpecial(declaringClass, method.getName(), MethodType.methodType(method.getReturnType(), method.getParameterTypes()), declaringClass);

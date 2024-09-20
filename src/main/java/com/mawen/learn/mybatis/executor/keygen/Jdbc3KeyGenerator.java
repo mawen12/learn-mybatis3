@@ -17,6 +17,7 @@ import com.mawen.learn.mybatis.binding.MapperMethod;
 import com.mawen.learn.mybatis.executor.Executor;
 import com.mawen.learn.mybatis.executor.ExecutorException;
 import com.mawen.learn.mybatis.mapping.MappedStatement;
+import com.mawen.learn.mybatis.mapping.ParameterMap;
 import com.mawen.learn.mybatis.reflection.ArrayUtil;
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.ParamNameResolver;
@@ -26,7 +27,6 @@ import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
 import com.mawen.learn.mybatis.util.MapUtil;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -76,7 +76,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 		if (parameter instanceof MapperMethod.ParamMap || parameter instanceof DefaultSqlSession.StrictMap) {
 			assignKeyToParamMap(configuration, rs, rsmd, keyProperties, (Map<String, ?>) parameter);
 		}
-		else if (parameter instanceof ArrayList && !(ArrayList<?>)parameter.isEmpty()) {
+		else if (parameter instanceof ArrayList && !((ArrayList<?>)parameter).isEmpty()) {
 			assignKeysToParamMapList(configuration, rs, rsmd, keyProperties, (ArrayList<MapperMethod.ParamMap<?>>) parameter);
 		}
 		else {
@@ -106,8 +106,8 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 		}
 	}
 
-	private void assignKeysToParamMapList(Configuration configuration, ResultSet rs, ResultSetMetaData rsmd, String[] keyProperties, List<ParamMap<?>> paramMapList) throws SQLException {
-		Iterator<ParamMap<?>> iterator = paramMapList.iterator();
+	private void assignKeysToParamMapList(Configuration configuration, ResultSet rs, ResultSetMetaData rsmd, String[] keyProperties, List<MapperMethod.ParamMap<?>> paramMapList) throws SQLException {
+		Iterator<MapperMethod.ParamMap<?>> iterator = paramMapList.iterator();
 		List<KeyAssigner> assignerList = new ArrayList<>();
 		long counter = 0;
 		while (rs.next()) {
@@ -115,7 +115,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 				throw new ExecutorException(String.format(MSG_TOO_MANY_KEYS, counter));
 			}
 
-			ParamMap<?> paramMap = iterator.next();
+			MapperMethod.ParamMap<?> paramMap = iterator.next();
 			if (assignerList.isEmpty()) {
 				for (int i = 0; i < keyProperties.length; i++) {
 					assignerList.add(getAssignerForParamMap(configuration, rsmd, i + 1, paramMap, keyProperties[i], keyProperties, false).getValue());
@@ -225,7 +225,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 
 		protected void assign(ResultSet rs, Object param) {
 			if (paramName != null) {
-				param = param.get(paramName);
+				param = ((MapperMethod.ParamMap<?>)param).get(paramName);
 			}
 
 			MetaObject metaParam = configuration.newMetaObject(param);

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.ReflectionException;
-import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.reflection.property.PropertyTokenizer;
 
 /**

@@ -4,9 +4,11 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import com.mawen.learn.mybatis.mapping.ParameterMapping;
 import com.mawen.learn.mybatis.mapping.SqlSource;
+import com.mawen.learn.mybatis.parsing.GenericTokenParser;
 import com.mawen.learn.mybatis.parsing.TokenHandler;
 import com.mawen.learn.mybatis.reflection.MetaClass;
 import com.mawen.learn.mybatis.reflection.MetaObject;
@@ -27,9 +29,31 @@ public class SqlSourceBuilder extends BaseBuilder {
 	}
 
 	public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
-		new ParameterMappingTokenHandler();
+		ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
+		GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
+		String sql;
+		if (configuration.isShrinkWhitespacesInSql()) {
+			sql = parser.parse(removeExtraWhitespaces(originalSql));
+		}
+		else {
+			sql = parser.parse(originalSql);
+		}
+		return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
 	}
 
+	public static String removeExtraWhitespaces(String original) {
+		StringTokenizer tokenizer = new StringTokenizer(original);
+		StringBuilder builder = new StringBuilder();
+		boolean hasMoreTokens = tokenizer.hasMoreTokens();
+		while (hasMoreTokens) {
+			builder.append(tokenizer.nextToken());
+			hasMoreTokens = tokenizer.hasMoreTokens();
+			if (hasMoreTokens) {
+				builder.append(' ');
+			}
+		}
+		return builder.toString();
+	}
 
 	private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 

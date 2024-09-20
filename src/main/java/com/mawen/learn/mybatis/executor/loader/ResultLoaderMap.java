@@ -59,7 +59,7 @@ public class ResultLoaderMap {
 		return loaderMap.containsKey(property.toLowerCase(Locale.ENGLISH));
 	}
 
-	public boolean load(String property) {
+	public boolean load(String property) throws SQLException {
 		LoadPair pair = loaderMap.remove(property.toLowerCase(Locale.ENGLISH));
 		if (pair != null) {
 			pair.load();
@@ -72,7 +72,7 @@ public class ResultLoaderMap {
 		loaderMap.remove(property.toUpperCase(Locale.ENGLISH));
 	}
 
-	public void loadAll() {
+	public void loadAll() throws SQLException {
 		final Set<String> methodNameSet = loaderMap.keySet();
 		String[] methodNames = methodNameSet.toArray(new String[methodNameSet.size()]);
 		for (String methodName : methodNames) {
@@ -130,7 +130,7 @@ public class ResultLoaderMap {
 			}
 		}
 
-		public void load() {
+		public void load() throws SQLException {
 			if (this.metaResultObject == null) {
 				throw new IllegalArgumentException("metaResultObject is null");
 			}

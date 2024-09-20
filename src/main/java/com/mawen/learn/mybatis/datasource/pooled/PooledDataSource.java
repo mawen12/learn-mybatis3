@@ -449,6 +449,15 @@ public class PooledDataSource implements DataSource {
 				}
 			}
 		}
+
+		if (conn == null) {
+			if (log.isDebugEnabled()) {
+				log.debug("PooledDataSource: Unknown severe error condition. The connection pool returned a null connection.");
+			}
+			throw new SQLException("PooledDataSource: Unknown severe error condition. The connection pool returned a null connection.");
+		}
+
+		return conn;
 	}
 
 	protected boolean pingConnection(PooledConnection conn) {

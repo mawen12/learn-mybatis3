@@ -1,7 +1,6 @@
 package com.mawen.learn.mybatis.reflection.factory;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 
 /**

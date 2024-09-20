@@ -2,7 +2,6 @@ package com.mawen.learn.mybatis.reflection.factory;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

@@ -8,7 +8,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

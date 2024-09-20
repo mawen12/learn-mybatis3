@@ -7,7 +7,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.mawen.learn.mybatis.binding.MapperMethod;
 import com.mawen.learn.mybatis.io.ResolverUtil;
 import com.mawen.learn.mybatis.io.Resources;
 import com.mawen.learn.mybatis.session.Configuration;
@@ -196,7 +196,7 @@ public final class TypeHandlerRegistry {
 	}
 
 	private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
-		if (ParamMap.class.equals(type)) {
+		if (MapperMethod.ParamMap.class.equals(type)) {
 			return null;
 		}
 		Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);

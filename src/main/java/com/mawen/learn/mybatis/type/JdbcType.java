@@ -4,8 +4,6 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mawen.learn.mybatis.annotations.Insert;
-
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/8/31

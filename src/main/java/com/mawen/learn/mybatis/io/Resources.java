@@ -116,7 +116,10 @@ public class Resources {
 
 	public static Properties getUrlAsProperties(String url) throws IOException {
 		Properties props = new Properties();
-
+		try (InputStream in = getUrlAsStream(url)) {
+			props.load(in);
+		}
+		return props;
 	}
 
 	public static Class<?> classForName(String className) throws ClassNotFoundException {

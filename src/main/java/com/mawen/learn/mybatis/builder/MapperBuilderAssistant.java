@@ -275,7 +275,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
 				.resultMaps(getStatementResultMaps(resultMap, resultType, id))
 				.resultSetType(resultSetType)
 				.flushCacheRequired(valueOrDefault(flushCache, !isSelect))
-				.useCache(valueOrDefault(useCache, isSelect));
+				.useCache(valueOrDefault(useCache, isSelect))
+				.cache(currentCache);
 
 		ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
 		if (statementParameterMap != null) {
@@ -478,12 +479,12 @@ public class MapperBuilderAssistant extends BaseBuilder {
 				MetaClass metaResultType = MetaClass.forClass(resultType, configuration.getReflectorFactory());
 				javaType = metaResultType.getGetterType(property);
 			}
-
-			if (javaType == null) {
-				javaType = Object.class;
-			}
-
-			return javaType;
 		}
+
+		if (javaType == null) {
+			javaType = Object.class;
+		}
+
+		return javaType;
 	}
 }

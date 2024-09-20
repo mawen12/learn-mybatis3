@@ -11,7 +11,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.mawen.learn.mybatis.annotations.Param;
-import com.mawen.learn.mybatis.reflection.invoker.Invoker;
+import com.mawen.learn.mybatis.binding.MapperMethod;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.session.ResultHandler;
 import com.mawen.learn.mybatis.session.RowBounds;
@@ -31,7 +31,7 @@ public class ParamNameResolver {
 	private boolean hasParamAnnotation;
 
 	public ParamNameResolver(Configuration config, Method method) {
-		this.useActualParamName = config.isUseAcutalParamName();
+		this.useActualParamName = config.isUseActualParamName();
 
 		final Class<?>[] paramTypes = method.getParameterTypes();
 		Annotation[][] paramAnnotations = method.getParameterAnnotations();
@@ -92,7 +92,7 @@ public class ParamNameResolver {
 			return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
 		}
 		else {
-			final Map<String, Object> param = new ParamMap<>();
+			final Map<String, Object> param = new MapperMethod.ParamMap<>();
 			int i = 0;
 			for (Map.Entry<Integer, String> entry : names.entrySet()) {
 				param.put(entry.getValue(), args[entry.getKey()]);
@@ -108,7 +108,7 @@ public class ParamNameResolver {
 
 	public static Object wrapToMapIfCollection(Object object, String actualParamName) {
 		if (object instanceof Collection) {
-			ParamMap<Object> map = new ParamMap<>();
+			MapperMethod.ParamMap<Object> map = new MapperMethod.ParamMap<>();
 			map.put("collection", object);
 			if (object instanceof List) {
 				map.put("list", object);
@@ -117,9 +117,9 @@ public class ParamNameResolver {
 			return map;
 		}
 		else if (object != null && object.getClass().isArray()) {
-			ParamMap<Object> map = new ParamMap<>();
+			MapperMethod.ParamMap<Object> map = new MapperMethod.ParamMap<>();
 			map.put("array", object);
-			Optional.ofNullable(actualParamName).isPresent(name -> map.put(name, object));
+			Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
 			return map;
 		}
 		else {

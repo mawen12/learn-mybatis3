@@ -1,13 +1,11 @@
 package com.mawen.learn.mybatis.executor;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.session.Configuration;
-import sun.security.krb5.Config;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

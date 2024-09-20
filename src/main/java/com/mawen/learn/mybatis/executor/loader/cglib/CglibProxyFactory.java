@@ -93,7 +93,7 @@ public class CglibProxyFactory implements ProxyFactory {
 			this.type = type;
 			this.lazyLoader = lazyLoader;
 			this.aggressive = configuration.isAggressiveLazyLoading();
-			this.lazyLoadTriggerMethods = configuration.getLazyLoadingTriggerMethods();
+			this.lazyLoadTriggerMethods = configuration.getLazyLoadTriggerMethods();
 			this.objectFactory = objectFactory;
 			this.constructorArgTypes = constructorArgTypes;
 			this.constructorArgs = constructorArgs;
@@ -102,7 +102,7 @@ public class CglibProxyFactory implements ProxyFactory {
 		public static Object createProxy(Object target, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			Class<?> type = target.getClass();
 			EnhancedResultObjectProxyImpl callback = new EnhancedResultObjectProxyImpl(type, lazyLoader, configuration, objectFactory, constructorArgTypes, constructorArgs);
-			Object enhanced = createProxy(type, callback, constructorArgTypes, constructorArgs);
+			Object enhanced = CglibProxyFactory.createProxy(type, callback, constructorArgTypes, constructorArgs);
 			PropertyCopier.copyBeanProperties(type, target, enhanced);
 			return enhanced;
 		}
@@ -164,7 +164,7 @@ public class CglibProxyFactory implements ProxyFactory {
 		public static Object createProxy(Object target, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 			Class<?> type = target.getClass();
 			EnhancedDeserializationProxyImpl callback = new EnhancedDeserializationProxyImpl(type, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
-			Object enhanced = createProxy(type, callback, objectFactory, constructorArgTypes, constructorArgs);
+			Object enhanced = CglibProxyFactory.createProxy(type, callback, constructorArgTypes, constructorArgs);
 			PropertyCopier.copyBeanProperties(type, target, enhanced);
 			return enhanced;
 		}

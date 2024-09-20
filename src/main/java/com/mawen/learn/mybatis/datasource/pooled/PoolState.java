@@ -50,7 +50,7 @@ public class PoolState {
 		return claimedOverdueConnectionCount;
 	}
 
-	public synchronized long getAverageOverdueConnectionCount() {
+	public synchronized long getAverageOverdueCheckoutTime() {
 		return claimedOverdueConnectionCount == 0 ? 0 : accumulatedCheckoutTimeOfOverdueConnections / claimedOverdueConnectionCount;
 	}
 
