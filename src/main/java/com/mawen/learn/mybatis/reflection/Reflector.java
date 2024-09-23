@@ -185,7 +185,7 @@ public class Reflector {
 				}
 			}
 
-			if (match == null) {
+			if (match != null) {
 				addSetMethod(propName, match);
 			}
 		}
@@ -358,7 +358,7 @@ public class Reflector {
 	}
 
 	public Invoker getSetInvoker(String propertyName) {
-		Invoker method = getMethods.get(propertyName);
+		Invoker method = setMethods.get(propertyName);
 		if (method == null) {
 			throw new ReflectionException("There is no setter for property named '" + propertyName + "' in '" + type + "'");
 		}

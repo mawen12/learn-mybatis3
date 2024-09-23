@@ -158,7 +158,7 @@ public class MapperAnnotationBuilder {
 				}
 			}
 
-			if (inputStream == null) {
+			if (inputStream != null) {
 				XMLMapperBuilder parser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
 				parser.parse();
 			}

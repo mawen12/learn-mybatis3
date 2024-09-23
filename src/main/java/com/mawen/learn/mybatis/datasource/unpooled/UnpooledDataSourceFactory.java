@@ -15,7 +15,7 @@ import com.mawen.learn.mybatis.reflection.SystemMetaObject;
  */
 public class UnpooledDataSourceFactory implements DataSourceFactory {
 
-	private static final String DRIVER_PROPERTY_PERFIX = "driver";
+	private static final String DRIVER_PROPERTY_PERFIX = "driver.";
 	private static final int DRIVER_PROPERTY_PREFIX_LENGTH = DRIVER_PROPERTY_PERFIX.length();
 
 	protected DataSource dataSource;

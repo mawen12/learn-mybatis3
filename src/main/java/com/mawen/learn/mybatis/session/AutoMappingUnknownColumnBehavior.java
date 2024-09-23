@@ -32,9 +32,7 @@ public enum AutoMappingUnknownColumnBehavior {
 	}
 	;
 
-
 	public abstract void doAction(MappedStatement mappedStatement, String columnName, String property, Class<?> propertyType);
-
 
 	private static String buildMessage(MappedStatement mappedStatement, String columnName, String property, Class<?> propertyType) {
 		return new StringBuilder("Unknown column is detected on '")

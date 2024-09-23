@@ -307,7 +307,7 @@ public class XNode {
 	private Properties parseAttributes(Node node) {
 		Properties attributes = new Properties();
 		NamedNodeMap attributeNodes = node.getAttributes();
-		if (attributes != null) {
+		if (attributeNodes != null) {
 			for (int i = 0; i < attributeNodes.getLength(); i++) {
 				Node attribute = attributeNodes.item(i);
 				String value = PropertyParser.parse(attribute.getNodeValue(), variables);

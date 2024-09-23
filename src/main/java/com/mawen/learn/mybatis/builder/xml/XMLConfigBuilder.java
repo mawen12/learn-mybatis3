@@ -94,7 +94,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 			loadCustomVfs(settings);
 			loadCustomLogImpl(settings);
 			typeAliasesElement(root.evalNode("typeAliases"));
-			pluginElement(root.evalNode("plugins"));
+			pluginsElement(root.evalNode("plugins"));
 			objectFactoryElement(root.evalNode("objectFactory"));
 			objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
 			reflectorFactoryElement(root.evalNode("reflectorFactory"));
@@ -102,8 +102,8 @@ public class XMLConfigBuilder extends BaseBuilder {
 			settingsElement(settings);
 			environmentsElement(root.evalNode("environments"));
 			databaseIdProviderElement(root.evalNode("databaseIdProvider"));
-			typeHandlerElement(root.evalNode("typeHandlers"));
-			mapperElement(root.evalNode("mappers"));
+			typeHandlersElement(root.evalNode("typeHandlers"));
+			mappersElement(root.evalNode("mappers"));
 		}
 		catch (Exception e) {
 			throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -141,6 +141,8 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 
 		Properties props = context.getChildrenAsProperties();
+
+		// check property exists in Configuration setter method parameter
 		MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
 		for (Object key : props.keySet()) {
 			if (!metaConfig.hasSetter(String.valueOf(key))) {
@@ -195,7 +197,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void pluginElement(XNode parent) throws Exception {
+	private void pluginsElement(XNode parent) throws Exception {
 		if (parent != null) {
 			for (XNode child : parent.getChildren()) {
 				String interceptor = child.getStringAttribute("interceptor");
@@ -308,10 +310,10 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void typeHandlerElement(XNode parent) {
+	private void typeHandlersElement(XNode parent) {
 		if (parent != null) {
 			for (XNode child : parent.getChildren()) {
-				if ("package".equals(child)) {
+				if ("package".equals(child.getName())) {
 					String typeHandlerPackage = child.getStringAttribute("name");
 					typeHandlerRegistry.register(typeHandlerPackage);
 				}
@@ -339,7 +341,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 		}
 	}
 
-	private void mapperElement(XNode parent) throws Exception {
+	private void mappersElement(XNode parent) throws Exception {
 		if (parent != null) {
 			for (XNode child : parent.getChildren()) {
 				if ("package".equals(child.getName())) {

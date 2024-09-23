@@ -205,7 +205,7 @@ public class XPathParser {
 
 	private Object evaluate(String expression, Object root, QName returnType) {
 		try {
-			return xpath.evaluate(expression, returnType, returnType);
+			return xpath.evaluate(expression, root, returnType);
 		}
 		catch (Exception e) {
 			throw new BuilderException("Error evaluating XPath. Cause: " + e, e);
@@ -229,6 +229,7 @@ public class XPathParser {
 			builder.setErrorHandler(new ErrorHandler() {
 				@Override
 				public void warning(SAXParseException exception) throws SAXException {
+					exception.printStackTrace();
 					// NOP
 				}
 

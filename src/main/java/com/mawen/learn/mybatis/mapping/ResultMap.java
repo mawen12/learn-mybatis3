@@ -176,7 +176,7 @@ public class ResultMap {
 				resultMap.idResultMappings.addAll(resultMap.resultMappings);
 			}
 
-			if (constructorArgNames.isEmpty()) {
+			if (!constructorArgNames.isEmpty()) {
 				final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
 
 				if (actualArgNames == null) {

@@ -15,7 +15,7 @@ public class PropertyNamer {
 			name = name.substring(2);
 		}
 		else if (name.startsWith("get") || name.startsWith("set")) {
-			name.substring(3);
+			name = name.substring(3);
 		}
 		else {
 			throw new ReflectionException("Error parsing property name '" + name + "'. Didn't start is 'is', 'get' or 'set'.");

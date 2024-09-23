@@ -243,7 +243,7 @@ public class ResultMapping {
 		}
 
 		private void resolveTypeHandler() {
-			if (resultMapping.typeHandler == null && resultMapping.javaType == null) {
+			if (resultMapping.typeHandler == null && resultMapping.javaType != null) {
 				Configuration configuration = resultMapping.configuration;
 				TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
 				resultMapping.typeHandler = typeHandlerRegistry.getTypeHandler(resultMapping.javaType, resultMapping.jdbcType);

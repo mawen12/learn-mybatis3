@@ -28,7 +28,7 @@ public class TypeParameterResolver {
 	}
 
 	public static Type[] resolveParamTypes(Method method, Type srcType) {
-		Type[] paramTypes = method.getGenericExceptionTypes();
+		Type[] paramTypes = method.getGenericParameterTypes();
 		Class<?> declaringClass = method.getDeclaringClass();
 		Type[] result = new Type[paramTypes.length];
 		for (int i = 0; i < paramTypes.length; i++) {
