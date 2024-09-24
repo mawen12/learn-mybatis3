@@ -27,20 +27,6 @@ public class Plugin implements InvocationHandler {
 		this.signatureMap = signatureMap;
 	}
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		try {
-			Set<Method> methods = signatureMap.get(method.getDeclaringClass());
-			if (method != null && methods.contains(method)) {
-				return interceptor.interceptor(new Invocation(target, method, args));
-			}
-			return method.invoke(target, args);
-		}
-		catch (Exception e) {
-			throw ExceptionUtil.unwrapThrowable(e);
-		}
-	}
-
 	public static Object wrap(Object target, Interceptor interceptor) {
 		Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
 		Class<?> type = target.getClass();
@@ -50,6 +36,20 @@ public class Plugin implements InvocationHandler {
 			return Proxy.newProxyInstance(type.getClassLoader(), interfaces, new Plugin(target, interceptor, signatureMap));
 		}
 		return target;
+	}
+
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		try {
+			Set<Method> methods = signatureMap.get(method.getDeclaringClass());
+			if (methods != null && methods.contains(method)) {
+				return interceptor.interceptor(new Invocation(target, method, args));
+			}
+			return method.invoke(target, args);
+		}
+		catch (Exception e) {
+			throw ExceptionUtil.unwrapThrowable(e);
+		}
 	}
 
 	private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {

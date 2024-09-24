@@ -71,7 +71,7 @@ public class MetaClass {
 			return metaProp.getGetterType(prop.getChildren());
 		}
 
-		return getGetterType(name);
+		return getGetterType(prop);
 	}
 
 	private MetaClass metaClassForProperty(PropertyTokenizer prop) {

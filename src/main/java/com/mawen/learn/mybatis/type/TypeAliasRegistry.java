@@ -116,7 +116,7 @@ public class TypeAliasRegistry {
 	}
 
 	public void registerAliases(String packageName) {
-		registerAlias(packageName, Object.class);
+		registerAliases(packageName, Object.class);
 	}
 
 	public void registerAliases(String packageName, Class<?> superType) {
@@ -146,6 +146,7 @@ public class TypeAliasRegistry {
 		}
 
 		String key = alias.toLowerCase(Locale.ENGLISH);
+
 		if (typeAliases.containsKey(key) && typeAliases.get(key) != null && !typeAliases.get(key).equals(value)) {
 			throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + typeAliases.get(key).getName() + "'.");
 		}
