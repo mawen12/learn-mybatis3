@@ -18,16 +18,19 @@ public class DoubleTypeHandler extends BaseTypeHandler<Double> {
 
 	@Override
 	public Double getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getDouble(columnName);
+		double result = rs.getDouble(columnName);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Double getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getDouble(columnIndex);
+		double result = rs.getDouble(columnIndex);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Double getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getDouble(columnIndex);
+		double result = cs.getDouble(columnIndex);
+		return result == 0 && cs.wasNull() ? null : result;
 	}
 }

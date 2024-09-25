@@ -8,9 +8,9 @@ import java.time.ZonedDateTime;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
- * @since 2024/9/3
+ * @since 2024/9/25
  */
-public class ZonedDataTimeTypeHandler extends BaseTypeHandler<ZonedDateTime> {
+public class ZonedDateTimeTypeHandler extends BaseTypeHandler<ZonedDateTime> {
 
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, ZonedDateTime parameter, JdbcType jdbcType) throws SQLException {

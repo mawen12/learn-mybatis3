@@ -18,16 +18,19 @@ public class FloatTypeHandler extends BaseTypeHandler<Float> {
 
 	@Override
 	public Float getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getFloat(columnName);
+		float result = rs.getFloat(columnName);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Float getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getFloat(columnIndex);
+		float result = rs.getFloat(columnIndex);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Float getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getFloat(columnIndex);
+		float result = cs.getFloat(columnIndex);
+		return result == 0 && cs.wasNull() ? null : result;
 	}
 }

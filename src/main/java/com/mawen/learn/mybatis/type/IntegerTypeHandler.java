@@ -18,16 +18,19 @@ public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
 
 	@Override
 	public Integer getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getInt(columnName);
+		int result = rs.getInt(columnName);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Integer getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getInt(columnIndex);
+		int result = rs.getInt(columnIndex);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Integer getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getInt(columnIndex);
+		int result = cs.getInt(columnIndex);
+		return result == 0 && cs.wasNull() ? null : result;
 	}
 }

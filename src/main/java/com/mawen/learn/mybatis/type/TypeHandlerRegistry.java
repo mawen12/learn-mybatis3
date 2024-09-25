@@ -145,7 +145,7 @@ public final class TypeHandlerRegistry {
 		register(LocalTime.class, new LocalTimeTypeHandler());
 		register(OffsetDateTime.class, new OffsetDateTimeTypeHandler());
 		register(OffsetTime.class, new OffsetTimeTypeHandler());
-		register(ZonedDateTime.class, new ZonedDataTimeTypeHandler());
+		register(ZonedDateTime.class, new ZonedDateTimeTypeHandler());
 		register(Month.class, new MonthTypeHandler());
 		register(Year.class, new YearTypeHandler());
 		register(YearMonth.class, new YearMonthTypeHandler());

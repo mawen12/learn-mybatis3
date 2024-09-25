@@ -18,16 +18,19 @@ public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
 
 	@Override
 	public Boolean getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getBoolean(columnName);
+		boolean result = rs.getBoolean(columnName);
+		return !result && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Boolean getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getBoolean(columnIndex);
+		boolean result = rs.getBoolean(columnIndex);
+		return !result && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Boolean getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getBoolean(columnIndex);
+		boolean result = cs.getBoolean(columnIndex);
+		return !result && cs.wasNull() ? null : result;
 	}
 }

@@ -18,16 +18,19 @@ public class LongTypeHandler extends BaseTypeHandler<Long> {
 
 	@Override
 	public Long getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getLong(columnName);
+		long result = rs.getLong(columnName);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Long getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getLong(columnIndex);
+		long result = rs.getLong(columnIndex);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Long getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getLong(columnIndex);
+		long result = cs.getLong(columnIndex);
+		return result == 0 && cs.wasNull() ? null : result;
 	}
 }

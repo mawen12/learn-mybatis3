@@ -63,7 +63,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
 		try {
 			return getNullableResult(rs,columnIndex);
 		}
-		catch (SQLException e) {
+		catch (Exception e) {
 			throw new ResultMapException("Error attempting to get column #" + columnIndex + " from request set. Cause: " + e, e);
 		}
 	}
@@ -73,7 +73,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
 		try {
 			return getNullableResult(cs, columnIndex);
 		}
-		catch (SQLException e) {
+		catch (Exception e) {
 			throw new ResultMapException("Error attempting to get column #" + columnIndex + " from callable statement. Cause: " + e, e);
 		}
 	}
