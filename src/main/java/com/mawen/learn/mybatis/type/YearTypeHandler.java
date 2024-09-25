@@ -34,4 +34,6 @@ public class YearTypeHandler extends BaseTypeHandler<Year> {
 		int year = cs.getInt(columnIndex);
 		return year == 0 && cs.wasNull() ? null : Year.of(year);
 	}
+
+
 }

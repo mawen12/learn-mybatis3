@@ -4,6 +4,7 @@
 
 <!-- @formatter:off -->
 <mapper namespace="com.mawen.learn.mybatis.domain.blog.mappers.AuthorMapper">
+
     <parameterMap id="selectAuthor" type="com.mawen.learn.mybatis.domain.blog.Author">
         <parameter property="id"/>
     </parameterMap>
