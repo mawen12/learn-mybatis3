@@ -30,7 +30,7 @@ public class MethodInvoker implements Invoker {
 		try {
 			return method.invoke(target, args);
 		}
-		catch (InvocationTargetException e) {
+		catch (IllegalAccessException e) {
 			if (Reflector.canControlMemberAccessible()) {
 				method.setAccessible(true);
 				return method.invoke(target, args);

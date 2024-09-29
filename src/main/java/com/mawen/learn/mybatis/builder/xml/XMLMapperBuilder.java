@@ -273,7 +273,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 			}
 		}
 
-		String id = resultMapNode.getStringAttribute("id", resultMapNode.getValueBasedIdentifier());
+		String id = resultMapNode.getStringAttribute("id", resultMapNode::getValueBasedIdentifier);
 		String extend = resultMapNode.getStringAttribute("extends");
 		Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
 		ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, extend, discriminator, resultMappings, autoMapping);
@@ -301,8 +301,8 @@ public class XMLMapperBuilder extends BaseBuilder {
 		return null;
 	}
 
-	private void processConstructorElement(XNode resultChild, Class<?> resultType, List<ResultMapping> resultMappings) {
-		List<XNode> argChildren = resultChild.getChildren();
+	private void processConstructorElement(XNode constructorNode, Class<?> resultType, List<ResultMapping> resultMappings) {
+		List<XNode> argChildren = constructorNode.getChildren();
 		for (XNode argChild : argChildren) {
 			List<ResultFlag> flags = new ArrayList<>();
 			flags.add(ResultFlag.CONSTRUCTOR);
@@ -325,7 +325,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 		Map<String, String> discriminatorMap = new HashMap<>();
 		for (XNode caseChild : context.getChildren()) {
 			String value = caseChild.getStringAttribute("value");
-			String resultMap = caseChild.getStringAttribute("resultMap", processNestedResultMappings(caseChild, resultMappings, resultType));
+			String resultMap = caseChild.getStringAttribute("resultMap", () -> processNestedResultMappings(caseChild, resultMappings, resultType));
 			discriminatorMap.put(value, resultMap);
 		}
 		return builderAssistant.buildDiscriminator(resultType, column, javaTypeClass, jdbcTypeEnum, typeHandlerClass, discriminatorMap);

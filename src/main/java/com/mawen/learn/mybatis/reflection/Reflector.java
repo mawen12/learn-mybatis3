@@ -117,7 +117,7 @@ public class Reflector {
 						isAmbiguous = true;
 						break;
 					}
-					else if (candidateType.getName().startsWith("is")) {
+					else if (candidate.getName().startsWith("is")) {
 						winner = candidate;
 					}
 				}
@@ -283,7 +283,7 @@ public class Reflector {
 	}
 
 	private boolean isValidPropertyName(String name) {
-		return !name.startsWith("$") || "serialVersionUID".equals(name) || "class".equals(name);
+		return !(name.startsWith("$") || "serialVersionUID".equals(name) || "class".equals(name));
 	}
 
 	private Method[] getClassMethods(Class<?> clazz) {

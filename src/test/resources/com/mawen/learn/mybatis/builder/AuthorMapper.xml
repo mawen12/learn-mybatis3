@@ -23,7 +23,7 @@
             <idArg column="id" javaType="_int"/>
             <arg column="username" javaType="string"/>
             <arg column="password" javaType="string"/>
-            <arg column="email" javaType="email"/>
+            <arg column="email" javaType="string"/>
             <arg column="bio" javaType="string"/>
             <arg column="favourite_section" javaType="com.mawen.learn.mybatis.domain.blog.Section"/>
         </constructor>
@@ -47,57 +47,49 @@
         </constructor>
     </resultMap>
 
-    <select id="selectAllAuthors" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectAllAuthors" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectAllAuthorsSet" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectAllAuthorsSet" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectAllAuthorsVector" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectAllAuthorsVector" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectAllAuthorsLinkedList" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectAllAuthorsLinkedList" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectAllAuthorsArray" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectAllAuthorsArray" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectComplexAuthors" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
+    <select id="selectComplexAuthors" resultType="com.mawen.learn.mybatis.domain.blog.Author">
         select
             *
         from
             author
     </select>
 
-    <select id="selectAuthorLinkedHashMap" resultMap="com.mawen.learn.mybatis.domain.blog.Author">
-        select
-            *
-        from
-            author
-    </select>
-
-
-    <select id="selectAuthorLinkedHashMap" resultType="java.lang.LinkedHashMap">
+    <select id="selectAuthorLinkedHashMap" resultType="java.util.LinkedHashMap">
         select
             *
         from
@@ -149,7 +141,7 @@
         update
             Author
         set
-            username = #{username, javaType=String},
+            username = #{username,javaType=String},
             password = #{password},
             email = #{email},
             bio = #{bio}

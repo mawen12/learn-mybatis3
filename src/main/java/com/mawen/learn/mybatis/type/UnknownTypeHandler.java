@@ -43,17 +43,22 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
 	@Override
 	public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return null;
+		TypeHandler<?> handler = resolveTypeHandler(rs, columnName);
+		return handler.getResult(rs, columnName);
 	}
 
 	@Override
 	public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return null;
+		TypeHandler<?> handler = resolveTypeHandler(rs.getMetaData(), columnIndex);
+		if (handler == null || handler instanceof UnknownTypeHandler) {
+			handler = OBJECT_TYPE_HANDLER;
+		}
+		return handler.getResult(rs, columnIndex);
 	}
 
 	@Override
 	public Object getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return null;
+		return cs.getObject(columnIndex);
 	}
 
 	private TypeHandler<?> resolveTypeHandler(Object parameter, JdbcType jdbcType) {
@@ -77,7 +82,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 			int count = rsmd.getColumnCount();
 			boolean useColumnLabel = configuration.isUseColumnLabel();
 
-			for (int i = 0; i < count; i++) {
+			for (int i = 1; i <= count; i++) {
 				String name = useColumnLabel ? rsmd.getColumnLabel(i) : rsmd.getColumnName(i);
 				columnIndexLookup.put(name, i);
 			}

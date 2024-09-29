@@ -57,17 +57,17 @@ public class MetaClass {
 	public Class<?> getSetterType(String name) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
-			MetaClass metaProp = metaClassForProperty(prop);
+			MetaClass metaProp = metaClassForProperty(prop.getName());
 			return metaProp.getSetterType(prop.getChildren());
 		}
 
-		return getGetterType(prop);
+		return reflector.getSetterType(prop.getName());
 	}
 
 	public Class<?> getGetterType(String name) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
-			MetaClass metaProp = metaClassForProperty(name);
+			MetaClass metaProp = metaClassForProperty(prop);
 			return metaProp.getGetterType(prop.getChildren());
 		}
 

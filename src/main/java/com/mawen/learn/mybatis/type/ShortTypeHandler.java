@@ -18,16 +18,19 @@ public class ShortTypeHandler extends BaseTypeHandler<Short> {
 
 	@Override
 	public Short getNullableResult(ResultSet rs, String columnName) throws SQLException {
-		return rs.getShort(columnName);
+		short result = rs.getShort(columnName);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Short getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-		return rs.getShort(columnIndex);
+		short result = rs.getShort(columnIndex);
+		return result == 0 && rs.wasNull() ? null : result;
 	}
 
 	@Override
 	public Short getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-		return cs.getShort(columnIndex);
+		short result = cs.getShort(columnIndex);
+		return result == 0 && cs.wasNull() ? null : result;
 	}
 }
