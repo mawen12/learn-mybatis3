@@ -51,7 +51,7 @@ public class ForEachSqlNode implements SqlNode{
 		}
 
 		boolean first = true;
-		appendOpen(context);
+		applyOpen(context);
 
 		int i = 0;
 		for (Object o : iterable) {
@@ -103,7 +103,7 @@ public class ForEachSqlNode implements SqlNode{
 		}
 	}
 
-	private void appendOpen(DynamicContext context) {
+	private void applyOpen(DynamicContext context) {
 		if (open != null) {
 			context.appendSql(open);
 		}

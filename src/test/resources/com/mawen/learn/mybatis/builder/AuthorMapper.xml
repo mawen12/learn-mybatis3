@@ -176,4 +176,15 @@
         where
             id = #{id}
     </delete>
+
+    <select id="selectPostIn" resultType="com.mawen.learn.mybatis.domain.blog.Post">
+        SELECT *
+        FROM POST P
+        <where>
+            <foreach item="item" index="index" collection="list"
+                     open="ID in (" separator="," close=")" nullable="true">
+                #{item}
+            </foreach>
+        </where>
+    </select>
 </mapper>

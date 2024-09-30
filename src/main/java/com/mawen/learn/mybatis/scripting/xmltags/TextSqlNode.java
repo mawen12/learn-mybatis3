@@ -11,7 +11,7 @@ import com.mawen.learn.mybatis.type.SimpleTypeRegistry;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */
-public class TextSqlNode implements SqlNode{
+public class TextSqlNode implements SqlNode {
 
 	private final String text;
 	private final Pattern injectionFilter;
