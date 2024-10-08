@@ -79,7 +79,7 @@ public abstract class BaseWrapper implements ObjectWrapper {
 		else {
 			int i = Integer.parseInt(prop.getIndex());
 			if (collection instanceof List) {
-				((List) collection).add(value);
+				((List) collection).set(i, value);
 			}
 			else if (collection instanceof Object[]) {
 				((Object[]) collection)[i] = value;

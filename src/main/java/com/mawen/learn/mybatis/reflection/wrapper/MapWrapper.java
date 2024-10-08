@@ -9,7 +9,30 @@ import com.mawen.learn.mybatis.reflection.SystemMetaObject;
 import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.reflection.property.PropertyTokenizer;
 
+
 /**
+ * 对 {@link Map} 及其子类访问的封装，通过 PropertyTokenizer 实现键的多样性扩展，支持两种访问模式：
+ * <ul>
+ *     <li>简单类型的值：</li>
+ *     <pre>{@code
+ *     	this.mapWrapper.set(new PropertyTokenizer("key"), "mybatis");
+ *
+ *     	Object value = this.mapWrapper.get(new PropertyTokenizer("key"));
+ *
+ *     	assertEquals("mybatis", value);
+ *     }</pre>
+ *     <li>集合和数组类型的值，基于索引访问：</li>
+ *     <pre>{@code
+ *     	this.mapWrapper.set(new PropertyTokenizer("key"), Arrays.asList(1L, 2L));
+ *
+ *     	Object value = this.mapWrapper.get(new PropertyTokenizer("key[0]"));
+ *
+ *     	assertEquals(1L, value);
+ *     }</pre>
+ * </ul>
+ *
+ * <p>需要注意的是，不支持 person.id 这种嵌套访问。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/3
  */
@@ -24,9 +47,11 @@ public class MapWrapper extends BaseWrapper {
 
 	@Override
 	public Object get(PropertyTokenizer prop) {
-		if (prop.getIndex() == null) {
-			Object collection = resolveCollection(prop, map);
-			return getCollectionValue(prop, collection);
+		if (prop.hasNext()) {
+			return getChildValue(prop);
+		}
+		else if (prop.getIndex() != null) {
+			return getCollectionValue(prop, resolveCollection(prop, map));
 		}
 		else {
 			return map.get(prop.getName());
@@ -35,9 +60,11 @@ public class MapWrapper extends BaseWrapper {
 
 	@Override
 	public void set(PropertyTokenizer prop, Object value) {
-		if (prop.getIndex() != null) {
-			Object collection = resolveCollection(prop, map);
-			setCollectionValue(prop, collection, value);
+		if (prop.hasNext()) {
+			setChildValue(prop, value);
+		}
+		else if (prop.getIndex() != null) {
+			setCollectionValue(prop, resolveCollection(prop, map), value);
 		}
 		else {
 			map.put(prop.getName(), value);
@@ -150,5 +177,25 @@ public class MapWrapper extends BaseWrapper {
 	@Override
 	public <E> void addAll(List<E> element) {
 		throw new UnsupportedOperationException();
+	}
+
+	protected Object getChildValue(PropertyTokenizer prop) {
+		MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
+		if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
+			return null;
+		}
+		return metaValue.getValue(prop.getChildren());
+	}
+
+	protected void setChildValue(PropertyTokenizer prop, Object value) {
+		MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
+		if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
+			if (value == null) {
+				return;
+			}
+
+			metaValue = instantiatePropertyValue(null, new PropertyTokenizer(prop.getName()), metaValue.getObjectFactory());
+		}
+		metaValue.setValue(prop.getChildren(), value);
 	}
 }

@@ -8,6 +8,8 @@ import com.mawen.learn.mybatis.reflection.factory.ObjectFactory;
 import com.mawen.learn.mybatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 对 {@link Collection} 及其子类访问的封装，仅支持 add/addAll 方法.
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/3
  */

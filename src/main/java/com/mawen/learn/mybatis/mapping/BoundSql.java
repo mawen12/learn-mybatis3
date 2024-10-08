@@ -46,10 +46,10 @@ public class BoundSql {
 	}
 
 	public void setAdditionalParameter(String name, Object value) {
-		additionalParameters.put(name, value);
+		metaParameters.setValue(name, value);
 	}
 
 	public Object getAdditionalParameter(String name) {
-		return additionalParameters.get(name);
+		return metaParameters.getValue(name);
 	}
 }

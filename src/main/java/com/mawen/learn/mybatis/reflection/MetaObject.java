@@ -104,7 +104,7 @@ public class MetaObject {
 	public Object getValue(String name) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
-			MetaObject metaValue = metaObjectForProperty(name);
+			MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
 			if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
 				return null;
 			}
@@ -120,7 +120,7 @@ public class MetaObject {
 	public void setValue(String name, Object value) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
-			MetaObject metaValue = metaObjectForProperty(name);
+			MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
 			if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
 				if (value == null) {
 					return;
