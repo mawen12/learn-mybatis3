@@ -72,7 +72,6 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 	private final ObjectFactory objectFactory;
 	private final ReflectorFactory reflectorFactory;
 
-
 	private final Map<CacheKey, Object> nestedResultObjects = new HashMap<>();
 	private final Map<String, Object> ancestorObjects = new HashMap<>();
 	private Object previousRowValue;
@@ -96,50 +95,6 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 		this.objectFactory = configuration.getObjectFactory();
 		this.reflectorFactory = configuration.getReflectorFactory();
 		this.resultHandler = resultHandler;
-	}
-
-	@Override
-	public void handleOutputParameters(CallableStatement cs) throws SQLException {
-		Object parameterObject = parameterHandler.getParameterObject();
-		MetaObject metaParam = configuration.newMetaObject(parameterObject);
-		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-
-		for (int i = 0; i < parameterMappings.size(); i++) {
-			ParameterMapping parameterMapping = parameterMappings.get(i);
-			if (parameterMapping.getMode() == ParameterMode.OUT || parameterMapping.getMode() == ParameterMode.INOUT) {
-				if (ResultSet.class.equals(parameterMapping.getJavaType())) {
-					handleRefCursorOutputParameter((ResultSet) cs.getObject(i + 1), parameterMapping, metaParam);
-				}
-				else {
-					TypeHandler<?> typeHandler = parameterMapping.getTypeHandler();
-					metaParam.setValue(parameterMapping.getProperty(), typeHandler.getResult(cs, i + 1));
-				}
-			}
-		}
-	}
-
-	private void handleRefCursorOutputParameter(ResultSet rs, ParameterMapping parameterMapping, MetaObject metaParam) throws SQLException {
-		if (rs == null) {
-			return;
-		}
-
-		try {
-			String resultMapId = parameterMapping.getResultMapId();
-			ResultMap resultMap = configuration.getResultMap(resultMapId);
-			ResultSetWrapper rsw = new ResultSetWrapper(rs, configuration);
-
-			if (this.resultHandler == null) {
-				DefaultResultHandler resultHandler = new DefaultResultHandler(objectFactory);
-				handleRowValues(rsw, resultMap, resultHandler, new RowBounds(), null);
-				metaParam.setValue(parameterMapping.getProperty(), resultHandler.getResultList());
-			}
-			else {
-				handleRowValues(rsw, resultMap, resultHandler, new RowBounds(), null);
-			}
-		}
-		finally {
-			closeResultSet(rs);
-		}
 	}
 
 	@Override
@@ -196,6 +151,50 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
 		ResultMap resultMap = resultMaps.get(0);
 		return new DefaultCursor<>(this, resultMap, rsw, rowBounds);
+	}
+
+	@Override
+	public void handleOutputParameters(CallableStatement cs) throws SQLException {
+		Object parameterObject = parameterHandler.getParameterObject();
+		MetaObject metaParam = configuration.newMetaObject(parameterObject);
+		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
+		for (int i = 0; i < parameterMappings.size(); i++) {
+			ParameterMapping parameterMapping = parameterMappings.get(i);
+			if (parameterMapping.getMode() == ParameterMode.OUT || parameterMapping.getMode() == ParameterMode.INOUT) {
+				if (ResultSet.class.equals(parameterMapping.getJavaType())) {
+					handleRefCursorOutputParameter((ResultSet) cs.getObject(i + 1), parameterMapping, metaParam);
+				}
+				else {
+					TypeHandler<?> typeHandler = parameterMapping.getTypeHandler();
+					metaParam.setValue(parameterMapping.getProperty(), typeHandler.getResult(cs, i + 1));
+				}
+			}
+		}
+	}
+
+	private void handleRefCursorOutputParameter(ResultSet rs, ParameterMapping parameterMapping, MetaObject metaParam) throws SQLException {
+		if (rs == null) {
+			return;
+		}
+
+		try {
+			String resultMapId = parameterMapping.getResultMapId();
+			ResultMap resultMap = configuration.getResultMap(resultMapId);
+			ResultSetWrapper rsw = new ResultSetWrapper(rs, configuration);
+
+			if (this.resultHandler == null) {
+				DefaultResultHandler resultHandler = new DefaultResultHandler(objectFactory);
+				handleRowValues(rsw, resultMap, resultHandler, new RowBounds(), null);
+				metaParam.setValue(parameterMapping.getProperty(), resultHandler.getResultList());
+			}
+			else {
+				handleRowValues(rsw, resultMap, resultHandler, new RowBounds(), null);
+			}
+		}
+		finally {
+			closeResultSet(rs);
+		}
 	}
 
 	private ResultSetWrapper getFirstResultSet(Statement stmt) throws SQLException {

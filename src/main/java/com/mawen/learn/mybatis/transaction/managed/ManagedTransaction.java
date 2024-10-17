@@ -19,9 +19,10 @@ public class ManagedTransaction implements Transaction {
 	private static final Log log = LogFactory.getLog(ManagedTransaction.class);
 
 	private Connection connection;
+	private final boolean closeConnection;
+
 	private DataSource dataSource;
 	private TransactionIsolationLevel level;
-	private final boolean closeConnection;
 
 	public ManagedTransaction(Connection connection, boolean closeConnection) {
 		this.connection = connection;
@@ -36,7 +37,7 @@ public class ManagedTransaction implements Transaction {
 
 	@Override
 	public Connection getConnection() throws SQLException {
-		if (connection != null) {
+		if (connection == null) {
 			openConnection();
 		}
 		return connection;

@@ -12,11 +12,13 @@ import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
 import com.mawen.learn.mybatis.scripting.LanguageDriver;
 import com.mawen.learn.mybatis.session.Configuration;
+import lombok.Getter;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/8/31
  */
+@Getter
 public final class MappedStatement {
 
 	private String resource;
@@ -169,98 +171,6 @@ public final class MappedStatement {
 			mappedStatement.resultMaps = Collections.unmodifiableList(mappedStatement.resultMaps);
 			return mappedStatement;
 		}
-	}
-
-	public String getResource() {
-		return resource;
-	}
-
-	public Configuration getConfiguration() {
-		return configuration;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public Integer getFetchSize() {
-		return fetchSize;
-	}
-
-	public Integer getTimeout() {
-		return timeout;
-	}
-
-	public StatementType getStatementType() {
-		return statementType;
-	}
-
-	public ResultSetType getResultSetType() {
-		return resultSetType;
-	}
-
-	public SqlSource getSqlSource() {
-		return sqlSource;
-	}
-
-	public Cache getCache() {
-		return cache;
-	}
-
-	public boolean isUseCache() {
-		return useCache;
-	}
-
-	public ParameterMap getParameterMap() {
-		return parameterMap;
-	}
-
-	public List<ResultMap> getResultMaps() {
-		return resultMaps;
-	}
-
-	public boolean isFlushCacheRequired() {
-		return flushCacheRequired;
-	}
-
-	public boolean isResultOrdered() {
-		return resultOrdered;
-	}
-
-	public SqlCommandType getSqlCommandType() {
-		return sqlCommandType;
-	}
-
-	public KeyGenerator getKeyGenerator() {
-		return keyGenerator;
-	}
-
-	public String[] getKeyProperties() {
-		return keyProperties;
-	}
-
-	public String[] getKeyColumns() {
-		return keyColumns;
-	}
-
-	public boolean isHasNestedResultMaps() {
-		return hasNestedResultMaps;
-	}
-
-	public String getDatabaseId() {
-		return databaseId;
-	}
-
-	public Log getStatementLog() {
-		return statementLog;
-	}
-
-	public LanguageDriver getLang() {
-		return lang;
-	}
-
-	public String[] getResultSets() {
-		return resultSets;
 	}
 
 	public BoundSql getBoundSql(Object parameterObject) {

@@ -3,8 +3,11 @@ package com.mawen.learn.mybatis.builder.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.function.Supplier;
 
 import com.mawen.learn.mybatis.builder.CachedAuthorMapper;
 import com.mawen.learn.mybatis.builder.CustomLongTypeHandler;
@@ -27,6 +30,7 @@ import com.mawen.learn.mybatis.io.JBoss6VFS;
 import com.mawen.learn.mybatis.io.Resources;
 import com.mawen.learn.mybatis.logging.slf4j.Slf4jImpl;
 import com.mawen.learn.mybatis.mapping.Environment;
+import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.scripting.defaults.RawLanguageDriver;
 import com.mawen.learn.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.mawen.learn.mybatis.session.AutoMappingBehavior;
@@ -160,6 +164,53 @@ class XMLConfigBuilderTest {
 		}
 	}
 
+	@Test
+	void benchmarkNewMetaObject() {
+		Class<User> userClass = User.class;
+
+		String resource = "com/mawen/learn/mybatis/builder/MinimalMapperConfig.xml";
+
+		try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
+			XMLConfigBuilder builder = new XMLConfigBuilder(inputStream);
+			Configuration config = builder.parse();
+
+			long begin = System.currentTimeMillis();
+
+			for (int i = 0; i < 1000_000; i++) {
+				config.newMetaObject(userClass);
+			}
+
+			System.out.println(System.currentTimeMillis() - begin);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	void benchmarkNewMetaObject2() {
+		Class<User> userClass = User.class;
+
+		String resource = "com/mawen/learn/mybatis/builder/MinimalMapperConfig.xml";
+
+		try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
+			XMLConfigBuilder builder = new XMLConfigBuilder(inputStream);
+			Configuration config = builder.parse();
+
+			long begin = System.currentTimeMillis();
+
+			Lazy<MetaObject> lazy = Lazy.of(() -> config.newMetaObject(userClass));
+			for (int i = 0; i < 1000_000; i++) {
+				lazy.get();
+			}
+
+			System.out.println(System.currentTimeMillis() - begin);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	static class MySqlProvider {
 
 		public static String providerSql() {
@@ -167,5 +218,87 @@ class XMLConfigBuilderTest {
 		}
 
 		private MySqlProvider() {}
+	}
+
+	static class User {
+		private Integer id;
+
+		private String name;
+
+		private String[] nickNames;
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String[] getNickNames() {
+			return nickNames;
+		}
+
+		public void setNickNames(String[] nickNames) {
+			this.nickNames = nickNames;
+		}
+	}
+
+	static class Lazy<T> implements Supplier<T> {
+
+		private final Supplier<? extends T> supplier;
+
+		private T value;
+		private volatile boolean resolved;
+
+		private Lazy(Supplier<? extends T> supplier) {
+			this(supplier, null, false);
+		}
+
+		private Lazy(Supplier<? extends T> supplier, T value, boolean resolved) {
+			this.supplier = supplier;
+			this.value = value;
+			this.resolved = resolved;
+		}
+
+		public static <T> Lazy<T> of(Supplier<? extends T> supplier) {
+			return new Lazy<>(supplier);
+		}
+
+		public static <T> Lazy<T> of(T value) {
+			assert value != null;
+
+			return new Lazy<>(() -> value);
+		}
+
+		public T get() {
+			T value = getNullable();
+
+			if (value == null) {
+				throw new IllegalStateException("Expected lazy evaluation to yield a non-null value but get null");
+			}
+
+			return value;
+		}
+
+		public T getNullable() {
+
+			if (resolved) {
+				return value;
+			}
+
+			this.value = supplier.get();
+			this.resolved = true;
+
+			return value;
+		}
 	}
 }

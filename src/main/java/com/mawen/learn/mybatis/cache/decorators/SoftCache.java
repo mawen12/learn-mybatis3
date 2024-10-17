@@ -34,7 +34,7 @@ public class SoftCache implements Cache {
 	@Override
 	public void putObject(Object key, Object value) {
 		removeGarbageCollectedItems();
-		delegate.putObject(key, new SoftEntry(key,value,queueOfGarbageCollectedEntries));
+		delegate.putObject(key, new SoftEntry(key, value, queueOfGarbageCollectedEntries));
 	}
 
 	@Override
@@ -62,6 +62,7 @@ public class SoftCache implements Cache {
 	public Object removeObject(Object key) {
 		removeGarbageCollectedItems();
 		SoftReference<Object> softReference = (SoftReference<Object>) delegate.removeObject(key);
+		// TODO by mawen maybe need to remove object from hardLinksToAvoidGarbageCollection
 		return softReference == null ? null : softReference.get();
 	}
 

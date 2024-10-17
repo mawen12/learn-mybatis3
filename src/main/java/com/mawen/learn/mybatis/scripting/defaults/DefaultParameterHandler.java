@@ -51,9 +51,11 @@ public class DefaultParameterHandler implements ParameterHandler {
 		if (parameterMappings != null) {
 			for (int i = 0; i < parameterMappings.size(); i++) {
 				ParameterMapping parameterMapping = parameterMappings.get(i);
+
 				if (parameterMapping.getMode() != ParameterMode.OUT) {
 					Object value;
 					String propertyName = parameterMapping.getProperty();
+
 					if (boundSql.hasAdditionalParameter(propertyName)) {
 						value = boundSql.getAdditionalParameter(propertyName);
 					}
@@ -68,13 +70,13 @@ public class DefaultParameterHandler implements ParameterHandler {
 						value = metaObject.getValue(propertyName);
 					}
 
-					TypeHandler typeHandler = parameterMapping.getTypeHandler();
 					JdbcType jdbcType = parameterMapping.getJdbcType();
 					if (value == null && jdbcType == null) {
 						jdbcType = configuration.getJdbcTypeForNull();
 					}
 
 					try {
+						TypeHandler typeHandler = parameterMapping.getTypeHandler();
 						typeHandler.setParameter(ps, i + 1, value, jdbcType);
 					}
 					catch (TypeException | SQLException e) {

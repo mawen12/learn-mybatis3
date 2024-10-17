@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
+ * 封装事务操作
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/8/30
  */

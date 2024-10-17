@@ -3,6 +3,7 @@ package com.mawen.learn.mybatis.cache.decorators;
 import java.util.concurrent.TimeUnit;
 
 import com.mawen.learn.mybatis.cache.Cache;
+import lombok.Setter;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -11,6 +12,7 @@ import com.mawen.learn.mybatis.cache.Cache;
 public class ScheduledCache implements Cache {
 
 	private final Cache delegate;
+	@Setter
 	protected long clearInterval;
 	protected long lastClear;
 
@@ -18,10 +20,6 @@ public class ScheduledCache implements Cache {
 		this.delegate = delegate;
 		this.clearInterval = TimeUnit.HOURS.toMillis(1);
 		this.lastClear = System.currentTimeMillis();
-	}
-
-	public void setClearInterval(long clearInterval) {
-		this.clearInterval = clearInterval;
 	}
 
 	@Override

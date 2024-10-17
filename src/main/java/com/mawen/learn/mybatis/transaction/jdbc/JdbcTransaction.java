@@ -20,10 +20,15 @@ public class JdbcTransaction implements Transaction {
 	private static final Log log = LogFactory.getLog(JdbcTransaction.class);
 
 	protected Connection connection;
+
 	protected DataSource dataSource;
 	protected TransactionIsolationLevel level;
 	protected boolean autoCommit;
 	protected boolean skipSetAutoCommitOnClose;
+
+	public JdbcTransaction(Connection connection) {
+		this.connection = connection;
+	}
 
 	public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit) {
 		this(ds, desiredLevel, desiredAutoCommit, false);
@@ -36,13 +41,9 @@ public class JdbcTransaction implements Transaction {
 		this.skipSetAutoCommitOnClose = skipSetAutoCommitOnClose;
 	}
 
-	public JdbcTransaction(Connection connection) {
-		this.connection = connection;
-	}
-
 	@Override
 	public Connection getConnection() throws SQLException {
-		if (connection != null) {
+		if (connection == null) {
 			openConnection();
 		}
 		return connection;

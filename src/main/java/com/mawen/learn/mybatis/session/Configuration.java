@@ -78,59 +78,135 @@ import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 import com.mawen.learn.mybatis.type.TypeHandler;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/8/30
  */
 public class Configuration {
 
+	@Setter
+	@Getter
 	protected Environment environment;
 
+	@Setter
+	@Getter
 	protected boolean safeRowBoundsEnabled;
+	@Setter
+	@Getter
 	protected boolean safeResultHandlerEnabled = true;
+	@Setter
+	@Getter
 	protected boolean mapUnderscoreToCamelCase;
+	@Setter
+	@Getter
 	protected boolean aggressiveLazyLoading;
+	@Setter
+	@Getter
 	protected boolean multipleResultSetsEnabled = true;
+	@Setter
+	@Getter
 	protected boolean useGeneratedKeys;
+	@Setter
+	@Getter
 	protected boolean useColumnLabel = true;
+	@Setter
+	@Getter
 	protected boolean cacheEnabled = true;
+	@Setter
+	@Getter
 	protected boolean callSettersOnNulls;
+	@Setter
+	@Getter
 	protected boolean useActualParamName = true;
+	@Setter
+	@Getter
 	protected boolean returnInstanceForEmptyRow;
+	@Setter
+	@Getter
 	protected boolean shrinkWhitespacesInSql;
+	@Setter
+	@Getter
 	protected boolean nullableOnForEach;
+	@Setter
+	@Getter
 	protected boolean argNameBasedConstructorAutoMapping;
 
+	@Setter
+	@Getter
 	protected String logPrefix;
+	@Getter
 	protected Class<? extends Log> logImpl;
+	@Getter
 	protected Class<? extends VFS> vfsImpl;
+	@Setter
+	@Getter
 	protected Class<?> defaultSqlProviderType;
+	@Setter
+	@Getter
 	protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+	@Setter
+	@Getter
 	protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
+	@Setter
+	@Getter
 	protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList("equals", "hashCode", "toString", "clone"));
+	@Setter
+	@Getter
 	protected Integer defaultStatementTimeout;
+	@Setter
+	@Getter
 	protected Integer defaultFetchSize;
+	@Setter
+	@Getter
 	protected ResultSetType defaultResultSetType;
+	@Setter
+	@Getter
 	protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+	@Setter
+	@Getter
 	protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
+	@Setter
+	@Getter
 	protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+	@Setter
+	@Getter
 	protected Properties variables = new Properties();
+	@Setter
+	@Getter
 	protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+	@Setter
+	@Getter
 	protected ObjectFactory objectFactory = new DefaultObjectFactory();
+	@Setter
+	@Getter
 	protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
+	@Setter
+	@Getter
 	protected boolean lazyLoadingEnabled = false;
+	@Getter
 	protected ProxyFactory proxyFactory = new JavassistProxyFactory();
 
+	@Setter
+	@Getter
 	protected String databaseId;
 
+	@Setter
+	@Getter
 	protected Class<?> configurationFactory;
 
+	@Getter
 	protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
 	protected final InterceptorChain interceptorChain = new InterceptorChain();
+	@Getter
 	protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+	@Getter
 	protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+	@Getter
 	protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
 	protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
@@ -141,11 +217,16 @@ public class Configuration {
 	protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
 	protected final Set<String> loadResources = new HashSet<>();
+	@Getter
 	protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
+	@Getter
 	protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
+	@Getter
 	protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
+	@Getter
 	protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
+	@Getter
 	protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
 	protected final Map<String, String> cacheRefMap = new HashMap<>();
@@ -188,18 +269,6 @@ public class Configuration {
 		languageRegistry.register(RawLanguageDriver.class);
 	}
 
-	public String getLogPrefix() {
-		return logPrefix;
-	}
-
-	public void setLogPrefix(String logPrefix) {
-		this.logPrefix = logPrefix;
-	}
-
-	public Class<? extends Log> getLogImpl() {
-		return logImpl;
-	}
-
 	public void setLogImpl(Class<? extends Log> logImpl) {
 		if (logImpl != null) {
 			this.logImpl = logImpl;
@@ -207,111 +276,11 @@ public class Configuration {
 		}
 	}
 
-	public Class<? extends VFS> getVfsImpl() {
-		return vfsImpl;
-	}
-
 	public void setVfsImpl(Class<? extends VFS> vfsImpl) {
 		if (vfsImpl != null) {
 			this.vfsImpl = vfsImpl;
 			VFS.addImplClass(this.vfsImpl);
 		}
-	}
-
-	public Class<?> getDefaultSqlProviderType() {
-		return defaultSqlProviderType;
-	}
-
-	public void setDefaultSqlProviderType(Class<?> defaultSqlProviderType) {
-		this.defaultSqlProviderType = defaultSqlProviderType;
-	}
-
-	public boolean isCallSettersOnNulls() {
-		return callSettersOnNulls;
-	}
-
-	public void setCallSettersOnNulls(boolean callSettersOnNulls) {
-		this.callSettersOnNulls = callSettersOnNulls;
-	}
-
-	public boolean isUseActualParamName() {
-		return useActualParamName;
-	}
-
-	public void setUseActualParamName(boolean useActualParamName) {
-		this.useActualParamName = useActualParamName;
-	}
-
-	public boolean isReturnInstanceForEmptyRow() {
-		return returnInstanceForEmptyRow;
-	}
-
-	public void setReturnInstanceForEmptyRow(boolean returnInstanceForEmptyRow) {
-		this.returnInstanceForEmptyRow = returnInstanceForEmptyRow;
-	}
-
-	public boolean isShrinkWhitespacesInSql() {
-		return shrinkWhitespacesInSql;
-	}
-
-	public void setShrinkWhitespacesInSql(boolean shrinkWhitespacesInSql) {
-		this.shrinkWhitespacesInSql = shrinkWhitespacesInSql;
-	}
-
-	public boolean isNullableOnForEach() {
-		return nullableOnForEach;
-	}
-
-	public void setNullableOnForEach(boolean nullableOnForEach) {
-		this.nullableOnForEach = nullableOnForEach;
-	}
-
-	public boolean isArgNameBasedConstructorAutoMapping() {
-		return argNameBasedConstructorAutoMapping;
-	}
-
-	public void setArgNameBasedConstructorAutoMapping(boolean argNameBasedConstructorAutoMapping) {
-		this.argNameBasedConstructorAutoMapping = argNameBasedConstructorAutoMapping;
-	}
-
-	public String getDatabaseId() {
-		return databaseId;
-	}
-
-	public void setDatabaseId(String databaseId) {
-		this.databaseId = databaseId;
-	}
-
-	public Class<?> getConfigurationFactory() {
-		return configurationFactory;
-	}
-
-	public void setConfigurationFactory(Class<?> configurationFactory) {
-		this.configurationFactory = configurationFactory;
-	}
-
-	public boolean isSafeResultHandlerEnabled() {
-		return safeResultHandlerEnabled;
-	}
-
-	public void setSafeResultHandlerEnabled(boolean safeResultHandlerEnabled) {
-		this.safeResultHandlerEnabled = safeResultHandlerEnabled;
-	}
-
-	public boolean isSafeRowBoundsEnabled() {
-		return safeRowBoundsEnabled;
-	}
-
-	public void setSafeRowBoundsEnabled(boolean safeRowBoundsEnabled) {
-		this.safeRowBoundsEnabled = safeRowBoundsEnabled;
-	}
-
-	public boolean isMapUnderscoreToCamelCase() {
-		return mapUnderscoreToCamelCase;
-	}
-
-	public void setMapUnderscoreToCamelCase(boolean mapUnderscoreToCamelCase) {
-		this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
 	}
 
 	public void addLoadedResource(String resource) {
@@ -322,155 +291,11 @@ public class Configuration {
 		return loadResources.contains(resource);
 	}
 
-	public Environment getEnvironment() {
-		return environment;
-	}
-
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
-
-	public AutoMappingBehavior getAutoMappingBehavior() {
-		return autoMappingBehavior;
-	}
-
-	public void setAutoMappingBehavior(AutoMappingBehavior autoMappingBehavior) {
-		this.autoMappingBehavior = autoMappingBehavior;
-	}
-
-	public AutoMappingUnknownColumnBehavior getAutoMappingUnknownColumnBehavior() {
-		return autoMappingUnknownColumnBehavior;
-	}
-
-	public void setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior) {
-		this.autoMappingUnknownColumnBehavior = autoMappingUnknownColumnBehavior;
-	}
-
-	public boolean isLazyLoadingEnabled() {
-		return lazyLoadingEnabled;
-	}
-
-	public void setLazyLoadingEnabled(boolean lazyLoadingEnabled) {
-		this.lazyLoadingEnabled = lazyLoadingEnabled;
-	}
-
-	public ProxyFactory getProxyFactory() {
-		return proxyFactory;
-	}
-
 	public void setProxyFactory(ProxyFactory proxyFactory) {
 		if (proxyFactory == null) {
 			proxyFactory = new JavassistProxyFactory();
 		}
 		this.proxyFactory = proxyFactory;
-	}
-
-	public boolean isAggressiveLazyLoading() {
-		 return aggressiveLazyLoading;
-	}
-
-	public void setAggressiveLazyLoading(boolean aggressiveLazyLoading) {
-		this.aggressiveLazyLoading = aggressiveLazyLoading;
-	}
-
-	public boolean isMultipleResultSetsEnabled() {
-		return multipleResultSetsEnabled;
-	}
-
-	public void setMultipleResultSetsEnabled(boolean multipleResultSetsEnabled) {
-		this.multipleResultSetsEnabled = multipleResultSetsEnabled;
-	}
-
-	public Set<String> getLazyLoadTriggerMethods() {
-		return lazyLoadTriggerMethods;
-	}
-
-	public void setLazyLoadTriggerMethods(Set<String> lazyLoadTriggerMethods) {
-		this.lazyLoadTriggerMethods = lazyLoadTriggerMethods;
-	}
-
-	public boolean isUseGeneratedKeys() {
-		return useGeneratedKeys;
-	}
-
-	public void setUseGeneratedKeys(boolean useGeneratedKeys) {
-		this.useGeneratedKeys = useGeneratedKeys;
-	}
-
-	public ExecutorType getDefaultExecutorType() {
-		return defaultExecutorType;
-	}
-
-	public void setDefaultExecutorType(ExecutorType defaultExecutorType) {
-		this.defaultExecutorType = defaultExecutorType;
-	}
-
-	public boolean isCacheEnabled() {
-		return cacheEnabled;
-	}
-
-	public void setCacheEnabled(boolean cacheEnabled) {
-		this.cacheEnabled = cacheEnabled;
-	}
-
-	public Integer getDefaultStatementTimeout() {
-		return defaultStatementTimeout;
-	}
-
-	public void setDefaultStatementTimeout(Integer defaultStatementTimeout) {
-		this.defaultStatementTimeout = defaultStatementTimeout;
-	}
-
-	public Integer getDefaultFetchSize() {
-		return defaultFetchSize;
-	}
-
-	public void setDefaultFetchSize(Integer defaultFetchSize) {
-		this.defaultFetchSize = defaultFetchSize;
-	}
-
-	public ResultSetType getDefaultResultSetType() {
-		return defaultResultSetType;
-	}
-
-	public void setDefaultResultSetType(ResultSetType defaultResultSetType) {
-		this.defaultResultSetType = defaultResultSetType;
-	}
-
-	public boolean isUseColumnLabel() {
-		return useColumnLabel;
-	}
-
-	public void setUseColumnLabel(boolean useColumnLabel) {
-		this.useColumnLabel = useColumnLabel;
-	}
-
-	public LocalCacheScope getLocalCacheScope() {
-		return localCacheScope;
-	}
-
-	public void setLocalCacheScope(LocalCacheScope localCacheScope) {
-		this.localCacheScope = localCacheScope;
-	}
-
-	public JdbcType getJdbcTypeForNull() {
-		return jdbcTypeForNull;
-	}
-
-	public void setJdbcTypeForNull(JdbcType jdbcTypeForNull) {
-		this.jdbcTypeForNull = jdbcTypeForNull;
-	}
-
-	public Properties getVariables() {
-		return variables;
-	}
-
-	public void setVariables(Properties variables) {
-		this.variables = variables;
-	}
-
-	public TypeHandlerRegistry getTypeHandlerRegistry() {
-		return typeHandlerRegistry;
 	}
 
 	public void setDefaultEnumTypeHandler(Class<? extends TypeHandler> typeHandler) {
@@ -479,44 +304,8 @@ public class Configuration {
 		}
 	}
 
-	public TypeAliasRegistry getTypeAliasRegistry() {
-		return typeAliasRegistry;
-	}
-
-	public MapperRegistry getMapperRegistry() {
-		return mapperRegistry;
-	}
-
-	public ReflectorFactory getReflectorFactory() {
-		return reflectorFactory;
-	}
-
-	public void setReflectorFactory(ReflectorFactory reflectorFactory) {
-		this.reflectorFactory = reflectorFactory;
-	}
-
-	public ObjectFactory getObjectFactory() {
-		return objectFactory;
-	}
-
-	public void setObjectFactory(ObjectFactory objectFactory) {
-		this.objectFactory = objectFactory;
-	}
-
-	public ObjectWrapperFactory getObjectWrapperFactory() {
-		return objectWrapperFactory;
-	}
-
-	public void setObjectWrapperFactory(ObjectWrapperFactory objectWrapperFactory) {
-		this.objectWrapperFactory = objectWrapperFactory;
-	}
-
 	public List<Interceptor> getInterceptors() {
 		return interceptorChain.getInterceptors();
-	}
-
-	public LanguageDriverRegistry getLanguageRegistry() {
-		return languageRegistry;
 	}
 
 	public void setDefaultScriptingLanguage(Class<? extends LanguageDriver> driver) {
@@ -683,24 +472,12 @@ public class Configuration {
 		return mappedStatements.values();
 	}
 
-	public Collection<XMLStatementBuilder> getIncompleteStatements() {
-		return incompleteStatements;
-	}
-
 	public void addIncompleteStatement(XMLStatementBuilder incompleteStatement) {
 		incompleteStatements.add(incompleteStatement);
 	}
 
-	public Collection<CacheRefResolver> getIncompleteCacheRefs() {
-		return incompleteCacheRefs;
-	}
-
 	public void addIncompleteCacheRef(CacheRefResolver incompleteCacheRef) {
 		incompleteCacheRefs.add(incompleteCacheRef);
-	}
-
-	public Collection<ResultMapResolver> getIncompleteResultMaps() {
-		return incompleteResultMaps;
 	}
 
 	public void addIncompleteResultMap(ResultMapResolver resultMapResolver) {
@@ -709,10 +486,6 @@ public class Configuration {
 
 	public void addIncompleteMethod(MethodResolver builder) {
 		incompleteMethods.add(builder);
-	}
-
-	public Collection<MethodResolver> getIncompleteMethods() {
-		return incompleteMethods;
 	}
 
 	public MappedStatement getMappedStatement(String id) {
@@ -724,10 +497,6 @@ public class Configuration {
 			buildAllStatements();
 		}
 		return mappedStatements.get(id);
-	}
-
-	public Map<String, XNode> getSqlFragments() {
-		return sqlFragments;
 	}
 
 	public void addInterceptor(Interceptor interceptor) {

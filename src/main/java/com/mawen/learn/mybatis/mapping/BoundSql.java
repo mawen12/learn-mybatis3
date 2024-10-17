@@ -7,6 +7,7 @@ import java.util.Map;
 import com.mawen.learn.mybatis.reflection.MetaObject;
 import com.mawen.learn.mybatis.reflection.property.PropertyTokenizer;
 import com.mawen.learn.mybatis.session.Configuration;
+import lombok.Getter;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -14,8 +15,11 @@ import com.mawen.learn.mybatis.session.Configuration;
  */
 public class BoundSql {
 
+	@Getter
 	private final String sql;
+	@Getter
 	private final List<ParameterMapping> parameterMappings;
+	@Getter
 	private final Object parameterObject;
 	private final Map<String, Object> additionalParameters;
 	private final MetaObject metaParameters;
@@ -26,18 +30,6 @@ public class BoundSql {
 		this.parameterObject = parameterObject;
 		this.additionalParameters = new HashMap<>();
 		this.metaParameters = configuration.newMetaObject(additionalParameters);
-	}
-
-	public String getSql() {
-		return sql;
-	}
-
-	public List<ParameterMapping> getParameterMappings() {
-		return parameterMappings;
-	}
-
-	public Object getParameterObject() {
-		return parameterObject;
 	}
 
 	public boolean hasAdditionalParameter(String name) {
