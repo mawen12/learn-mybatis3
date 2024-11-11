@@ -48,6 +48,8 @@ public class DefaultParameterHandler implements ParameterHandler {
 		ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
 		List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 
+		MetaObject metaObject = null;
+
 		if (parameterMappings != null) {
 			for (int i = 0; i < parameterMappings.size(); i++) {
 				ParameterMapping parameterMapping = parameterMappings.get(i);
@@ -66,7 +68,9 @@ public class DefaultParameterHandler implements ParameterHandler {
 						value = parameterObject;
 					}
 					else {
-						MetaObject metaObject = configuration.newMetaObject(parameterObject);
+						if (metaObject == null) {
+							metaObject = configuration.newMetaObject(parameterObject);
+						}
 						value = metaObject.getValue(propertyName);
 					}
 

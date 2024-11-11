@@ -1,0 +1,12 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @formatter:off -->
+<mapper namespace="com.mawen.learn.mybatis.domain.blog.mappers.AuthorMapper">
+
+    <parameterMap id="selectAuthor" type="com.mawen.learn.mybatis.domain.blog.Author">
+        <parameter property="id"/>
+    </parameterMap>
+
+</mapper>
