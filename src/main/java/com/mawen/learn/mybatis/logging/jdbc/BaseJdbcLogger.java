@@ -27,7 +27,9 @@ public abstract class BaseJdbcLogger {
 	protected static final Set<String> EXECUTE_METHODS = new HashSet<>();
 
 	private final Map<Object, Object> columnMap = new HashMap<>();
+	// TODO 建议此处使用 LinkedList，因为不会关心元素索引。
 	private final List<Object> columnNames = new ArrayList<>();
+	// TODO 建议此处使用 LinkedList，因为不会关心元素索引。
 	private final List<Object> columnValues = new ArrayList<>();
 
 	protected final Log statementLog;

@@ -98,8 +98,11 @@ public class MapperAnnotationBuilder {
 
 	public void parse() {
 		String resource = type.toString();
+		// 是否已经解析mapper接口对应的xml
 		if (!configuration.isResourceLoaded(resource)) {
+			// 根据mapper接口获取xml文件并解析，解析<mapper></mapper>中的所有东西放到Configuration
 			loadXmlResource();
+			// 添加已解析的标记
 			configuration.addLoadedResource(resource);
 			assistant.setCurrentNamespace(type.getName());
 			parseCache();

@@ -11,6 +11,9 @@ import com.mawen.learn.mybatis.executor.ErrorContext;
 import com.mawen.learn.mybatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
+ * 负责读取全局配置文件，并创建{@link SqlSessionFactory}。
+ * Builder 设计模式实现。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/14
  */
@@ -30,6 +33,7 @@ public class SqlSessionFactoryBuilder {
 
 	public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
 		try {
+			// 使用 XMLConfigBuilder 来解析全局配置文件
 			XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
 			return build(parser.parse());
 		}

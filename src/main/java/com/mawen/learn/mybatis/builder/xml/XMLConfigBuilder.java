@@ -32,16 +32,32 @@ import com.mawen.learn.mybatis.session.ExecutorType;
 import com.mawen.learn.mybatis.session.LocalCacheScope;
 import com.mawen.learn.mybatis.transaction.TransactionFactory;
 import com.mawen.learn.mybatis.type.JdbcType;
+import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 
 /**
+ * 负责解析全局配置文件。
+ * Builder 设计模式实现。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/15
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
+	/**
+	 * 解析标志位，如果已经解析过，就设置为true
+	 */
 	private boolean parsed;
+	/**
+	 * 用于解析XML节点的解析器
+	 */
 	private final XPathParser parser;
+	/**
+	 * 全局配置中的environment值，代表了需要激活的环境
+	 */
 	private String environment;
+	/**
+	 * 反射工厂，用于初始化Configuration类
+	 */
 	private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
 	public XMLConfigBuilder(Reader reader) {
@@ -77,32 +93,116 @@ public class XMLConfigBuilder extends BaseBuilder {
 		this.parser = parser;
 	}
 
+	/**
+	 * 解析的入口方法
+	 *
+	 * @return 保存全局配置的对象
+	 */
 	public Configuration parse() {
+		// 若已经解析过了，就抛出异常
 		if (parsed) {
 			throw new BuilderException("Each XMLConfigBuilder can only be used once");
 		}
 
+		// 设置解析标志位
 		parsed = true;
+
+		// 解析全局配置文件中 <configuration>节点
 		parseConfiguration(parser.evalNode("/configuration"));
 		return configuration;
 	}
 
+	/**
+	 * 解析<configuration>节点内容
+	 *
+	 * @param root configuration节点对象
+	 */
 	private void parseConfiguration(XNode root) {
 		try {
+			/**
+			 * 解析<properties>节点
+			 * 解析到 {@link com.mawen.learn.mybatis.parsing.XPathParser#variables}
+			 * 		 {@link com.mawen.learn.mybatis.session.Configuration#variables}
+ 			 */
 			propertiesElement(root.evalNode("properties"));
+			/**
+			 * 解析<settings>节点
+			 * 具体可以配置哪些属性值：https://mybatis.org/mybatis-3/configuration.html#settings
+			 * 解析为 Properties
+			 */
 			Properties settings = settingsAsProperties(root.evalNode("settings"));
+			/**
+			 * 基本没有用过该属性
+			 * VFS含义是虚拟文件系统，主要是通过程序能够方便读取文件系统、FTP文件系统等系统中的文件资源。
+			 * Mybatis中提供了VFS这个配置，主要是通过该配置可以加载自定义的虚拟文件系统应用程序。
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#vfsImpl}
+			 */
 			loadCustomVfs(settings);
+			/**
+			 * 指定 Mybatis 所用日志的具体实现，未指定时将自动查找。
+			 *
+			 * SLF4J | LOG4J | LOG4J2 | JDK_LOGGING | COMMONS_LOGGING | STDOUT_LOGGING
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#logImpl}
+			 */
 			loadCustomLogImpl(settings);
+			/**
+			 * 解析<typeAliases>节点
+			 * 解析我们的别名，类型别名是Java类型的缩写，其仅于XML配置有关，其存在的目的只是为了减少完全限定类名的冗余类型。
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#typeAliasRegistry}
+			 */
+			//
 			typeAliasesElement(root.evalNode("typeAliases"));
+			/**
+			 * 解析<plugins>节点
+			 * 解析我们的插件，比如分页插件。
+			 * 默认情况下，Mybatis允许插件拦截以下方法调用：
+			 * - Executor(update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)
+			 * - ParameterHandler(getParameterObject, setParameters)
+			 * - ResultSetHandler(handleResultSets, handleOutputParameters)
+			 * - StatementHandler(prepare, parameterize, batch, update, query)
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#interceptorChain.intercetors}
+			 */
 			pluginsElement(root.evalNode("plugins"));
+			/**
+			 * 解析<objectFactory>节点
+			 * 对象工程负责对象创建，设置自定的工程必须实现 {@link com.mawen.learn.mybatis.reflection.factory.ObjectFactory}。
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#objectFactory}
+			 */
 			objectFactoryElement(root.evalNode("objectFactory"));
+			/**
+			 * 解析<objectWrapperFactory>节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#objectWrapperFactory}
+			 */
 			objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+			/**
+			 * 解析<reflectorFactory>节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#reflectorFactory}
+			 */
 			reflectorFactoryElement(root.evalNode("reflectorFactory"));
 
 			settingsElement(settings);
+			//
+			/**
+			 * 解析<environments>节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#environment}
+			 */
 			environmentsElement(root.evalNode("environments"));
+			/**
+			 * 解析<databaseIdProvider>节点
+			 * Mybatis 支持根据不同的数据库厂商来执行不同的数据库语句。
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#databaseId}
+			 */
 			databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+			/**
+			 * 解析<typeHandlers>节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#typeHandlerRegistry.typeHandlerMap}
+			 */
 			typeHandlersElement(root.evalNode("typeHandlers"));
+			/**
+			 * 解析<mappers>节点
+			 * 解析XML映射文件
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#mapperRegistry.knownMappers}
+			 */
 			mappersElement(root.evalNode("mappers"));
 		}
 		catch (Exception e) {
@@ -343,16 +443,30 @@ public class XMLConfigBuilder extends BaseBuilder {
 
 	private void mappersElement(XNode parent) throws Exception {
 		if (parent != null) {
+			/**
+			 * 获取我们mappers节点下的所有mapper节点
+			 */
 			for (XNode child : parent.getChildren()) {
+				/**
+				 * 判断mapper是不是通过批量注册的
+				 * <package name=“com.mawen”></package>
+				 */
 				if ("package".equals(child.getName())) {
 					String mapperPackage = child.getStringAttribute("name");
 					configuration.addMappers(mapperPackage);
 				}
 				else {
+					/**
+					 * 从mapperClass下读取
+					 * <mapper></mapper>
+					 */
 					String resource = child.getStringAttribute("resource");
 					String url = child.getStringAttribute("url");
 					String mapperClass = child.getStringAttribute("class");
 
+					/**
+					 * 仅指定resource时从classpath读取
+					 */
 					if (resource != null && url == null && mapperClass == null) {
 						ErrorContext.instance().resource(resource);
 						try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
@@ -360,6 +474,9 @@ public class XMLConfigBuilder extends BaseBuilder {
 							mapperParser.parse();
 						}
 					}
+					/**
+					 * 仅指定url时从网络地址地址加载
+					 */
 					else if (resource == null && url != null && mapperClass == null) {
 						ErrorContext.instance().resource(url);
 						try (InputStream inputStream = Resources.getUrlAsStream(url)) {
@@ -367,11 +484,15 @@ public class XMLConfigBuilder extends BaseBuilder {
 							mapperParser.parse();
 						}
 					}
+					/**
+					 * 仅指定mapperClass时从src/main/java下加载
+					 */
 					else if (resource == null && url == null && mapperClass != null) {
 						Class<?> mapperInterface = Resources.classForName(mapperClass);
 						configuration.addMapper(mapperInterface);
 					}
 					else {
+						// 当resource、url、mapperClass均未指定时，抛出异常
 						throw new BuilderException("A mapper element may only specify a url, resource or class, but not more that one.");
 					}
 				}

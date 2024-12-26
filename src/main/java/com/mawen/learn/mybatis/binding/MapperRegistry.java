@@ -57,15 +57,20 @@ public class MapperRegistry {
 	}
 
 	public <T> void addMapper(Class<T> type) {
+		// 注册的mapper必须为接口
 		if (type.isInterface()) {
+			// 不允许重复注册，会抛出异常
 			if (hasMapper(type)) {
 				throw new BuilderException("Type " + type + " is already known to the MapperRegistry");
 			}
 
+			// 加载完成标志位
 			boolean loadCompleted = false;
 			try {
+				// 创建一个MapperProxyFactory，把我们的Mapper接口保存到工厂中
 				knownMappers.put(type, new MapperProxyFactory<>(type));
 				MapperAnnotationBuilder parser = new MapperAnnotationBuilder(configuration, type);
+				// 进行解析
 				parser.parse();
 				loadCompleted = true;
 			}
