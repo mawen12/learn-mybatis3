@@ -54,7 +54,7 @@ class ChooseSqlNodeTest extends SqlNodeTest{
 	@Test
 	@Override
 	public void shouldApply() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("title", "abc");
 			put("author", new Author(1, "mybatis", "***", null, null, null));
 		}});
@@ -67,7 +67,7 @@ class ChooseSqlNodeTest extends SqlNodeTest{
 
 	@Test
 	public void shouldAppendSecond() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("author", new Author(1, "mybatis", "***", null, null, null));
 		}});
 

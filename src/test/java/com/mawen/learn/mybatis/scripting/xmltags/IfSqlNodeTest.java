@@ -28,7 +28,7 @@ class IfSqlNodeTest extends SqlNodeTest {
 		// given
 		SqlNode contents = new StaticTextSqlNode(TEXT);
 		SqlNode sqlNode = new IfSqlNode(contents, CONDITION);
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("title", "ENGLISH");
 		}});
 
@@ -46,7 +46,7 @@ class IfSqlNodeTest extends SqlNodeTest {
 		// given
 		SqlNode contents = new StaticTextSqlNode(TEXT);
 		SqlNode sqlNode = new IfSqlNode(contents, CONDITION);
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("title", null);
 		}});
 

@@ -96,6 +96,9 @@ public class MapperAnnotationBuilder {
 		this.type = type;
 	}
 
+	/**
+	 * 解析顺序：先XML，再注解。注解上的配置会覆盖掉XML的
+	 */
 	public void parse() {
 		String resource = type.toString();
 		// 是否已经解析mapper接口对应的xml
@@ -108,17 +111,21 @@ public class MapperAnnotationBuilder {
 			parseCache();
 			parseCacheRef();
 
+			// 获取所有方法，看看是不是用了注解
 			for (Method method : type.getMethods()) {
+				// 过滤掉桥接和默认方法
 				if (!canHaveStatement(method)) {
 					continue;
 				}
 
+				// 解析方法上的Select注解
 				if (getAnnotationWrapper(method, false, Select.class, SelectProvider.class).isPresent()
 				    && method.getAnnotation(ResultMap.class) == null) {
 					parseResultMap(method);
 				}
 
 				try {
+					// 是不是用了注解，用了注解会将注解解析成MappedStatement
 					parseStatement(method);
 				}
 				catch (IncompleteElementException e) {

@@ -10,6 +10,8 @@ import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
 
 /**
+ * 支持事务操作的缓存，无类型别名，装饰器模式，责任链设计模式。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/12
  */

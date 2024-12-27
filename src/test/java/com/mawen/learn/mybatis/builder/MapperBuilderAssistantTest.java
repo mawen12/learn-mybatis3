@@ -3,7 +3,6 @@ package com.mawen.learn.mybatis.builder;
 import com.mawen.learn.mybatis.session.Configuration;
 import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 import com.mawen.learn.mybatis.type.TypeHandlerRegistry;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;

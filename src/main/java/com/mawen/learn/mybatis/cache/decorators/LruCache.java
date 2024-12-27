@@ -6,6 +6,9 @@ import java.util.Map;
 import com.mawen.learn.mybatis.cache.Cache;
 
 /**
+ * 最近最少使用算法。类型别名为：LRU。装饰器设计模式，责任链设计模式。
+ * 基于LinkedHashMap实现的缓存，最大支持1024个缓存对象。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */

@@ -47,7 +47,7 @@ class TypeHandlerRegistryTest {
 
 	@Test
 	void shouldRegisterAndRetrieveComplexTypeHandler() {
-		TypeHandler<List<URI>> fakeHandler = new TypeHandler<>() {
+		TypeHandler<List<URI>> fakeHandler = new TypeHandler<List<URI>>() {
 			@Override
 			public void setParameter(PreparedStatement ps, int i, List<URI> parameter, JdbcType jdbcType) throws SQLException {
 				//
@@ -69,7 +69,7 @@ class TypeHandlerRegistryTest {
 			}
 		};
 
-		TypeReference<List<URI>> type = new TypeReference<>() {};
+		TypeReference<List<URI>> type = new TypeReference<List<URI>>() {};
 
 		registry.register(type, fakeHandler);
 
@@ -78,7 +78,7 @@ class TypeHandlerRegistryTest {
 
 	@Test
 	void shouldAutoRegisterAndRetrieveComplexTypeHandler() {
-		TypeHandler<List<URI>> fakeHandler = new BaseTypeHandler<>() {
+		TypeHandler<List<URI>> fakeHandler = new BaseTypeHandler<List<URI>>() {
 			@Override
 			public void setNonNullParameter(PreparedStatement ps, int i, List<URI> parameter, JdbcType jdbcType) throws SQLException {
 
@@ -178,7 +178,7 @@ class TypeHandlerRegistryTest {
 				TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
 				List<Future<Boolean>> taskResults = IntStream.range(0, 2)
 						.mapToObj(index -> executorService.submit(() -> typeHandlerRegistry.hasTypeHandler(TestEnum.class, JdbcType.VARCHAR)))
-						.toList();
+						.collect(Collectors.toList());
 
 				for (Future<Boolean> future : taskResults) {
 					assertTrue(future.get(), "false is returned at round " + i);

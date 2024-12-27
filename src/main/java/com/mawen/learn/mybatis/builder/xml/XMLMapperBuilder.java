@@ -73,7 +73,14 @@ public class XMLMapperBuilder extends BaseBuilder {
 
 	public void parse() {
 		if (!configuration.isResourceLoaded(resource)) {
+			/**
+			 * 真正解析我们的<mapper namespace=""></mapper>
+			 * 解析的数据内容如下：https://mybatis.org/mybatis-3/sqlmap-xml.html
+			 */
 			configurationElement(parser.evalNode("/mapper"));
+			/**
+			 * 把资源保存到Configuration中
+			 */
 			configuration.addLoadedResource(resource);
 			bindMapperForNamespace();
 		}
@@ -89,17 +96,62 @@ public class XMLMapperBuilder extends BaseBuilder {
 
 	private void configurationElement(XNode context) {
 		try {
+			/**
+			 * 解析namespace属性
+			 */
 			String namespace = context.getStringAttribute("namespace");
 			if (namespace == null || namespace.isEmpty()) {
 				throw new BuilderException("Mapper's namespace cannot be empty");
 			}
-
+			/**
+			 * 保存当前的namespace，并且判断接口完全类型==namespace
+			 */
 			builderAssistant.setCurrentNamespace(namespace);
+			/**
+			 * 解析缓存引用
+			 * 说明当前的缓存引用和namespace完全一致
+			 * <cache-ref namespace="com.someone.application.data.SomeMapper"/>
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#cacheRefMap}
+			 * 异常下（引用缓存未使用缓存） {@link com.mawen.learn.mybatis.session.Configuration#incompleteCacheRefs}
+			 */
 			cacheRefElement(context.evalNode("cache-ref"));
+			/**
+			 * 解析缓存
+			 * 缓存规则：
+			 * - 当前映射文件中查询语句的结果将会被缓存
+			 * - 当前映射文件中新增、修改、删除会刷新缓存
+			 * - 缓存将使用LRU（最近最少使用）算法来驱逐
+			 * - 缓存不会按照任何基于时间的计划进行刷新（即无刷新间隔）
+			 * - 缓存最多存储1024个列表或对象（无论查询方法返回什么）
+			 * - 缓存被是为读写缓存，这意味着检索到的对象不共享，并且可以由调用者安全地修改，而不会干扰其他调用者或线程的潜在修改
+			 * <cache
+			 *   eviction="FIFO"
+			 *   flushInterval="60000"
+			 *   size="512"
+			 *   readOnly="true"/>
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#caches}
+			 * 		 {@link com.mawen.learn.mybatis.builder.MapperBuilderAssistant#currentCache}
+			 */
 			cacheElement(context.evalNode("cache"));
+			/**
+			 * 解析parameterMap节点（该节点mybatis3.5貌似不推荐使用了）
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#parameterMaps}
+			 */
 			parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+			/**
+			 * 解析resultMap节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#resultMaps}
+			 */
 			resultMapElements(context.evalNodes("/mapper/resultMap"));
+			/**
+			 * 解析sql节点
+			 * 解析到 {@link sqlFragments}
+			 */
 			sqlElement(context.evalNodes("/mapper/sql"));
+			/**
+			 * 解析增删改查节点
+			 * 解析到 {@link com.mawen.learn.mybatis.session.Configuration#mappedStatements}
+			 */
 			buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
 		}
 		catch (Exception e) {
@@ -187,15 +239,40 @@ public class XMLMapperBuilder extends BaseBuilder {
 
 	private void cacheElement(XNode context) {
 		if (context != null) {
+			/**
+			 * 读取缓存类型属性，默认是PERPETUAL，该值会被Configuration预注册到TypeAliasRegistry中(com.mawen.learn.mybatis.session.Configuration#Configuration())，对应 {@link com.mawen.learn.mybatis.cache.impl.PerpetualCache}
+			 */
 			String type = context.getStringAttribute("type", "PERPETUAL");
+			/**
+			 * 从别名中查找预注册的缓存类型
+			 */
 			Class<? extends Cache> typeClass = resolveAlias(type);
+			/**
+			 * 读取缓存过期策略，默认是LRU，该值会被Configuration预注册到TypeAliasRegistry中(com.mawen.learn.mybatis.session.Configuration#Configuration())，对应{@link sun.misc.LRUCache}
+			 */
 			String eviction = context.getStringAttribute("eviction", "LRU");
+			/**
+			 * 从别名中查找预注册的驱逐策略
+			 */
 			Class<? extends Cache> evictionClass = resolveAlias(eviction);
+			/**
+			 * flushInterval(刷新间隔)，属性可以被设置为任意正整数，设置的值应该是一个以毫秒为单位的合理时间
+			 */
 			Long flushInterval = context.getLongAttribute("flushInterval");
+			/**
+			 * size(引用数目)，属性可以被设置为任意正整数，要注意欲缓存对象的大小和运行环境中可用的内存资源，默认值为1024
+			 */
 			Integer size = context.getIntAttribute("size");
+			/**
+			 * readOnly(只读)，属性可以被设置为true和false。只读的缓存会给所有调用者返回缓存对象的相同实例。
+			 */
 			boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+			/**
+			 * blocking(阻塞操作)，属性可以被设置为true和false，操作缓存时是否阻塞其他线程，默认值为false
+			 */
 			boolean blocking = context.getBooleanAttribute("blocking", false);
 			Properties props = context.getChildrenAsProperties();
+			// 把缓存节点加入到Configuration中
 			builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
 		}
 	}

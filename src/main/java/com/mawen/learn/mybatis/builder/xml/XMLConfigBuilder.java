@@ -35,8 +35,8 @@ import com.mawen.learn.mybatis.type.JdbcType;
 import com.mawen.learn.mybatis.type.TypeAliasRegistry;
 
 /**
- * 负责解析全局配置文件。
- * Builder 设计模式实现。
+ * 负责解析全局配置文件，并将结果写入Configuration。
+ * Builder设计模式。
  *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/15
@@ -52,7 +52,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 	 */
 	private final XPathParser parser;
 	/**
-	 * 全局配置中的environment值，代表了需要激活的环境
+	 * 全局配置中的environment值，代表了需要激活的环境。
 	 */
 	private String environment;
 	/**
@@ -338,6 +338,11 @@ public class XMLConfigBuilder extends BaseBuilder {
 	private void settingsElement(Properties props) {
 		configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
 		configuration.setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior.valueOf(props.getProperty("autoMappingUnknownColumnBehavior", "NONE")));
+		/**
+		 * 是否开启全局缓存，默认开启。如果开启缓存，则会使用CachingExecutor
+		 * <setting name="cacheEnabled" value="true"></setting>
+		 * 解析到 {@link Configuration#cacheEnabled}
+		 */
 		configuration.setCacheEnabled(booleanValueOf(props.getProperty("cacheEnabled"), true));
 		configuration.setProxyFactory((ProxyFactory)createInstance(props.getProperty("proxyFactory")));
 		configuration.setLazyLoadingEnabled(booleanValueOf(props.getProperty("lazyLoadingEnabled"), false));

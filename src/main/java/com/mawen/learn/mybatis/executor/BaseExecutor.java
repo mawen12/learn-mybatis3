@@ -41,8 +41,14 @@ public abstract class BaseExecutor implements Executor {
 	protected Executor wrapper;
 
 	protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
+	/**
+	 * 一级缓存
+	 */
 	protected PerpetualCache localCache;
 	protected PerpetualCache localOutputParameterCache;
+	/**
+	 * 全局配置
+	 */
 	protected Configuration configuration;
 
 	protected int queryStack;
@@ -85,6 +91,7 @@ public abstract class BaseExecutor implements Executor {
 			queryStack++;
 			list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
 			if (list != null) {
+				log.debug("Get from Cache by key: " + key + " -> " + list);
 				handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
 			}
 			else {
@@ -307,14 +314,23 @@ public abstract class BaseExecutor implements Executor {
 
 	private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
 		List<E> list;
+		/**
+		 * 在本地缓存中预留预占位
+		 */
 		localCache.putObject(key, EXECUTION_PLACEHOLDER);
 		try {
 			list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
 		}
 		finally {
+			/**
+			 * 从本地缓存中移除预占位
+			 */
 			localCache.removeObject(key);
 		}
 
+		/**
+		 * 将查询结果写入本地缓存
+		 */
 		localCache.putObject(key, list);
 		if (ms.getStatementType() == StatementType.CALLABLE) {
 			localOutputParameterCache.putObject(key, parameter);

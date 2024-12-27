@@ -5,14 +5,28 @@ import com.mawen.learn.mybatis.logging.Log;
 import com.mawen.learn.mybatis.logging.LogFactory;
 
 /**
+ * 输出缓存命中的日志信息。无类型别名，装饰器设计模式，责任链设计模式。
+ * 只有在取值的时候，并且日志级别为debug时，才会打印日志。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */
 public class LoggingCache implements Cache {
-
+	/**
+	 * 日志类，负责输出日志
+	 */
 	private final Log log;
+	/**
+	 * 装饰的缓存
+	 */
 	private final Cache delegate;
+	/**
+	 * 从缓存中读操作的累计次数
+	 */
 	private int requests = 0;
+	/**
+	 * 从缓存中读操作的累计命中次数
+	 */
 	private int hits = 0;
 
 	public LoggingCache(Cache delegate) {

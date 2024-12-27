@@ -15,6 +15,9 @@ import com.mawen.learn.mybatis.io.Resources;
 import com.mawen.learn.mybatis.io.SerialFilterChecker;
 
 /**
+ * 缓存序列化和反序列化存储。无类型别名。装饰器设计模式，责任链设计模式。
+ * 在写入值进行序列化，读取值时进行反序列化。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */

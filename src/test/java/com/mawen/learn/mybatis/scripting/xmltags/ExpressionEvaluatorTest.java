@@ -71,7 +71,7 @@ class ExpressionEvaluatorTest {
 
 	@Test
 	void shouldIterateOverIterable() {
-		final HashMap<String, String[]> parameterObject = new HashMap<>(){{
+		final HashMap<String, String[]> parameterObject = new HashMap<String, String[]>(){{
 			put("array", new String[]{"1", "2", "3"});
 		}};
 

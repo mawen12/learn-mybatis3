@@ -30,50 +30,50 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
 	@Override
 	public SqlSession openSession() {
-		return null;
+		return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
 	}
 
 	@Override
 	public SqlSession openSession(boolean autoCommit) {
-		return null;
+		return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, autoCommit);
 	}
 
 	@Override
 	public SqlSession openSession(Connection connection) {
-		return null;
+		return openSessionFromConnection(configuration.getDefaultExecutorType(), connection);
 	}
 
 	@Override
 	public SqlSession openSession(TransactionIsolationLevel level) {
-		return null;
+		return openSessionFromDataSource(configuration.getDefaultExecutorType(), level, false);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType) {
-		return null;
+		return openSessionFromDataSource(execType, null, false);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, boolean autoCommit) {
-		return null;
+		return openSessionFromDataSource(execType, null, autoCommit);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, TransactionIsolationLevel level) {
-		return null;
+		return openSessionFromDataSource(execType, level, false);
 	}
 
 	@Override
 	public SqlSession openSession(ExecutorType execType, Connection connection) {
-		return null;
+		return openSessionFromConnection(execType, connection);
 	}
 
 	@Override
 	public Configuration getConfiguration() {
-		return null;
+		return configuration;
 	}
 
-	private SqlSession openSqlSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
+	private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
 		Transaction tx = null;
 		try {
 			final Environment environment = configuration.getEnvironment();

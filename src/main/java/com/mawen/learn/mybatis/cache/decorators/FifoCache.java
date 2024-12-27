@@ -6,6 +6,10 @@ import java.util.Deque;
 import com.mawen.learn.mybatis.cache.Cache;
 
 /**
+ * 先进先出算法，回收策略。类型别名：FIFO。装饰器设计模式，责任链设计模式。
+ * 基于双向队列实现先进先出模式。
+ * 最大的引用元素上限为1024。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */

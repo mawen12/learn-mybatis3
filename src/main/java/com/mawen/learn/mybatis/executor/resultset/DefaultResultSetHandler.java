@@ -110,7 +110,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 		validateResultMapsCount(rsw, resultMapCount);
 
 		while (rsw != null && resultMapCount > resultSetCount) {
-			ResultMap resultMap = resultMaps.get(resultMapCount);
+			ResultMap resultMap = resultMaps.get(resultSetCount);
 			handleResultSet(rsw, resultMap, multipleResults, null);
 			rsw = getNextResultSet(statement);
 			cleanupAfterHandlingResultSet();

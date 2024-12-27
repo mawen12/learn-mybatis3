@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import com.mawen.learn.mybatis.cache.Cache;
 
 /**
+ * 基于软引用实现的缓存管理策略。类型别名：SOFT。装饰器设计模式，责任链设计模式。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */
@@ -17,7 +19,6 @@ public class SoftCache implements Cache {
 	private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
 	private final Cache delegate;
 	private int numberOfHardLinks;
-
 
 	public SoftCache(Cache delegate) {
 		this.delegate = delegate;

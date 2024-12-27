@@ -121,7 +121,7 @@ class CollectionWrapperTest extends ObjectWrapperTest{
 	@Test
 	@Override
 	void shouldAddAll() {
-		List<Object> list = new ArrayList<>() {{
+		List<Object> list = new ArrayList<Object>() {{
 			add("1");
 			add("2");
 			add("3");

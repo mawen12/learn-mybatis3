@@ -6,6 +6,9 @@ import com.mawen.learn.mybatis.cache.Cache;
 import lombok.Setter;
 
 /**
+ * 调度缓存，负责定时清空缓存。无类型别名。装饰器设计模式，责任链设计模式。
+ * 即使时间上过期了，但是元素仍然还会存在，只有在调用{@link #putObject}, {@link #getObject}, {@link #removeObject}时才会清理。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */

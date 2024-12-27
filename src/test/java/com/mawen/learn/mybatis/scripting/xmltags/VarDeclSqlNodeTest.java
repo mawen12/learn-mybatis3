@@ -29,7 +29,7 @@ class VarDeclSqlNodeTest extends SqlNodeTest {
 	@Test
 	@Override
 	public void shouldApply() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("_parameter", new Bean("abc"));
 		}});
 

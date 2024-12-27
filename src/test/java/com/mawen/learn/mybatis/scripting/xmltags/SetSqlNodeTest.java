@@ -45,7 +45,7 @@ class SetSqlNodeTest extends SqlNodeTest {
 	@Test
 	@Override
 	public void shouldApply() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>(){{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>(){{
 			put("username", "Jack");
 			put("password", "***");
 		}});
@@ -58,7 +58,7 @@ class SetSqlNodeTest extends SqlNodeTest {
 
 	@Test
 	public void shouldAppendOnlyUsername() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>(){{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>(){{
 			put("username", "Jack");
 		}});
 
@@ -70,7 +70,7 @@ class SetSqlNodeTest extends SqlNodeTest {
 
 	@Test
 	public void shouldAppendOnlyPassword() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>(){{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>(){{
 			put("password", "***");
 		}});
 

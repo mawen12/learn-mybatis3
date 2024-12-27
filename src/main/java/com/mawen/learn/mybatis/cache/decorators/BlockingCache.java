@@ -9,6 +9,9 @@ import com.mawen.learn.mybatis.cache.Cache;
 import com.mawen.learn.mybatis.cache.CacheException;
 
 /**
+ * 防穿透。无类型别名。装饰器设计模式，责任链设计模式。
+ *
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/4
  */

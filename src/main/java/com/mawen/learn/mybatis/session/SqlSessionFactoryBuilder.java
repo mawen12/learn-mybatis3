@@ -11,8 +11,8 @@ import com.mawen.learn.mybatis.executor.ErrorContext;
 import com.mawen.learn.mybatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
- * 负责读取全局配置文件，并创建{@link SqlSessionFactory}。
- * Builder 设计模式实现。
+ * 负责从输入流中读取并创建{@link SqlSessionFactory}。
+ * Builder设计模式。
  *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/14

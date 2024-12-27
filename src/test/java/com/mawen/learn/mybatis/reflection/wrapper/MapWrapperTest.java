@@ -103,7 +103,7 @@ class MapWrapperTest extends ObjectWrapperTest {
 	@Test
 	@Override
 	void shouldGetGetterNames() {
-		Set<String> sets = new HashSet<>(){{
+		Set<String> sets = new HashSet<String>(){{
 			add("key1");
 			add("key2");
 		}};
@@ -118,7 +118,7 @@ class MapWrapperTest extends ObjectWrapperTest {
 	@Test
 	@Override
 	void shouldGetSetterNames() {
-		Set<String> sets = new HashSet<>(){{
+		Set<String> sets = new HashSet<String>(){{
 			add("key1");
 			add("key2");
 		}};

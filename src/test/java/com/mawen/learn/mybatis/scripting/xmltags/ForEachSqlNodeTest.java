@@ -43,7 +43,7 @@ class ForEachSqlNodeTest extends SqlNodeTest{
 		ArgumentCaptor<Object> bindValueCaptor = ArgumentCaptor.forClass(Object.class);
 		doNothing().when(context).bind(bindKeyCaptor.capture(), bindValueCaptor.capture());
 
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("list", Arrays.asList("a", "b", "c"));
 		}});
 

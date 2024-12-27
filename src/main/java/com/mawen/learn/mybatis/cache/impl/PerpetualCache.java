@@ -7,6 +7,9 @@ import com.mawen.learn.mybatis.cache.Cache;
 import com.mawen.learn.mybatis.cache.CacheException;
 
 /**
+ * 类型别名为：PERPETUAL，默认缓存。
+ * 基于HashMap的缓存实现。
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/9/12
  */

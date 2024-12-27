@@ -46,7 +46,7 @@ class WhereSqlNodeTest extends SqlNodeTest {
 	@Test
 	@Override
 	public void shouldApply() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("id", 1);
 			put("name", "mybatis");
 		}});
@@ -59,7 +59,7 @@ class WhereSqlNodeTest extends SqlNodeTest {
 
 	@Test
 	public void shouldAppendOnlyId() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("id", 1);
 		}});
 
@@ -71,7 +71,7 @@ class WhereSqlNodeTest extends SqlNodeTest {
 
 	@Test
 	public void shouldAppendOnlyName() throws Exception {
-		when(context.getBindings()).thenReturn(new HashMap<>() {{
+		when(context.getBindings()).thenReturn(new HashMap<String, Object>() {{
 			put("name", "mybatis");
 		}});
 
